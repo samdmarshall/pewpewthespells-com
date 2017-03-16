@@ -1,0 +1,9 @@
+# crap
+.DS_Store
+
+# build artifacts
+nimcache/
+
+# binaries
+rite/rite
+ritual/ritual
