@@ -7,6 +7,9 @@ nimcache/
 # generated pages
 content/public/
 
+# logs
+content/logs/
+
 # binaries
 rite/rite
 ritual/ritual
