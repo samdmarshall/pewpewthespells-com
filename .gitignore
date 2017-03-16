@@ -4,6 +4,9 @@
 # build artifacts
 nimcache/
 
+# generated pages
+content/public/
+
 # binaries
 rite/rite
 ritual/ritual
