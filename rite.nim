@@ -120,8 +120,7 @@ when isMainModule:
   for kind, key, value in getopt():
     case kind
     of cmdArgument:
-      let expanded_path: string = os.expandTilde(key)
-      sitemap_file_path = os.expandFilename(expanded_path)
+      sitemap_file_path = key.expandTilde().expandFilename()
     else:
       discard
 
