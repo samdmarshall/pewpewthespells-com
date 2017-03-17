@@ -6,6 +6,7 @@ nimcache/
 
 # generated pages
 content/public/
+content/
 
 # logs
 content/logs/

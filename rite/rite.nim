@@ -13,11 +13,6 @@ import yaml
 # defining types for the sitemap file
 ##
 
-type sitemap_server = object
-  user: string
-  host: string
-  path: string
-
 type sitemap_generation_rule = object
   import_as: string
   export_as: string
@@ -30,7 +25,6 @@ type sitemap_website_file = object
 
 type sitemap = object
   export_dir: string
-  server: sitemap_server
   rules: seq[sitemap_generation_rule]
   files: seq[sitemap_website_file]
 
@@ -198,12 +192,3 @@ if export_path_is_defined:
 let seqs_of_files_to_upload: seq[seq[string]] = sequtils.map(website_files_to_process, filterUploadableFiles)
 let files_to_upload: seq[string] = sequtils.concat(seqs_of_files_to_upload)
 
-if should_upload and export_path_is_defined:
-  for file_path in files_to_upload:
-    let relative_path = strutils.replace(file_path, export_base_path, "")
-    let scp_command = "scp "&file_path&" "&sitemap_data.server.user&"@"&sitemap_data.server.host&":"&sitemap_data.server.path&relative_path
-    let exit_code = os.execShellCmd(scp_command)
-    discard exit_code
-  # removing the export directory now we are done
-  ##
-  os.removeDir(getExportBasePath())
