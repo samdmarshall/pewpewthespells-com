@@ -11,11 +11,6 @@ requires "nim >= 0.15.0"
 requires "yaml >= 0.9.0"
 requires "jester >= 0.1.1"
 
-task generate, "generate the website content":
-  exec "./rite content/raw/sitemap.yml"
-
-before generate:
-  exec "nimble tools"
 
 task tools, "build the tools":
   exec "nim compile rite.nim"
@@ -29,9 +24,6 @@ before clean:
   
 task serve, "start running the webserver":
   exec "ngnix -c nginx/config"
-
-before serve:
-  exec "nimble tools"
 
 task stop, "stop running the webserver":
   exec "killall ritual || true"
