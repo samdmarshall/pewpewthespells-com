@@ -21,8 +21,9 @@ task clean, "clean up from build":
 
 before clean:
   exec "nimble stop"
-  
+
 task serve, "start running the webserver":
+  exec "./ritual"
   exec "ngnix -c nginx/config"
 
 task stop, "stop running the webserver":

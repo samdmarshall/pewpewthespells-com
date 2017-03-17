@@ -1,34 +1,12 @@
 # imports from standard library
 ##
 import os
-import streams
 import sequtils
 import strutils
-import parseopt2
 
-# imports from third party libraries
-##
-import yaml
+import "incantation.nim"
 
-# defining types for the sitemap file
-##
-
-type 
-  sitemap_generation_rule = object
-    import_as: string
-    export_as: string
-    cmd: string
-
-  sitemap_website_file = object
-    name: string
-    export_as: string
-    update: bool
-
-  sitemap = object
-    export_dir: string
-    rules: seq[sitemap_generation_rule]
-    files: seq[sitemap_website_file]
-
+type
   website_file = object
     file: sitemap_website_file
     rules: seq[sitemap_generation_rule]
@@ -113,19 +91,8 @@ proc processFile(sitemap_data: sitemap, sitemap_file_path: string, file_item: we
 # ===========================================
 
 when isMainModule:
-  var sitemap_data: sitemap
-  var sitemap_file_path: string = ""
-  for kind, key, value in getopt():
-    case kind
-    of cmdArgument:
-      sitemap_file_path = key.expandTilde().expandFilename()
-    else:
-      discard
-
-  if sitemap_file_path.fileExists():
-    let sitemap_file_descriptor = newFileStream(sitemap_file_path)
-    yaml.serialization.load(sitemap_file_descriptor, sitemap_data)
-    sitemap_file_descriptor.close()
+  let sitemap_file_path = getSitemapFile()
+  let sitemap_data = initWebsite(sitemap_file_path)
 
   for website_file_item in sitemap_data.files:
     let website_full_file_path = sitemap_file_path.getWebsiteFileFullPath(website_file_item.name)
@@ -143,4 +110,4 @@ when isMainModule:
         echo("generating '" & path & "'...")
     else:
       echo("failure in generation!!")
-      quit(QuitFailure)
+      break
