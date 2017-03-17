@@ -97,13 +97,11 @@ proc processFile(sitemap_data: sitemap, sitemap_file_path: string, file_item: we
         exec_command = exec_command.replace(RuleOutputFileTag, export_item_name)
         exec_command = exec_command.replace(RuleOutputDirTag, sitemap_data.getExportBasePath(sitemap_file_path))
         exec_command = exec_command.replace(RuleSelfDirTag, sitemap_file_path.parentDir())
-        echo("Running '" & exec_command & "'...")
         exit_code = execShellCmd(exec_command)
         files_as_input.add(export_item_name)
     if applicable_rules.len == 0:
       let src = files_as_input[0]
       let dest = export_item_name
-      echo("Copying " & src & " to " & dest & "..")
       copyFile(src, dest)
       exit_code = 0
     files_as_output.add(export_item_name)
@@ -141,4 +139,8 @@ when isMainModule:
     let output = sitemap_data.processFile(sitemap_file_path, processed_file)
     if output.successful_status:
       for item in output.exported_files:
-        echo("generating '" & item & "'...")
+        let path = item.expandFileName()
+        echo("generating '" & path & "'...")
+    else:
+      echo("failure in generation!!")
+      quit(QuitFailure)
