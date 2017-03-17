@@ -49,31 +49,16 @@ var sitemap_data: sitemap
 var sitemap_file_path: string = ""
 var should_upload: bool = false
 
-# get the name of the program that is being run
-##
-proc progName(): string =
-  result = os.extractFilename(os.getAppFilename())
-
-# define the usage for "--help"
-##
-proc usage =
-  echo("usage: " & progName() & " [--help|-h] [-v|--version] ")
-
-# define the version number
-##
-proc versionInfo =
-  echo(progName() & " v0.1")
-
 #
 ##
 proc getWebsiteFileFullPath(relative_path: string): string =
   let website_relative_file_path = relative_path
-  let website_base_path = os.parentDir(sitemap_file_path)
-  result = os.joinPath(website_base_path, website_relative_file_path)
+  let website_base_path = sitemap_file_path.parentDir()
+  result = website_base_path.joinPath(website_relative_file_path)
 
 proc getRawFileExtension(path: string): string =
-  let (_, _, ext) = os.splitFile(path)
-  result = strutils.strip(ext, chars={'.'})
+  let (_, _, ext) = path.splitFile()
+  result = ext.strip(chars={'.'})
 
 #
 ##
@@ -102,32 +87,32 @@ proc processFile(file_item: website_file): processed_file_result =
   var files_as_output: seq[string] = @[]
   let website_full_path = getWebsiteFileFullPath(file_item.file.name)
   files_as_input.add(website_full_path)
-  for desired_export_format in strutils.split(file_item.file.export_as, ';'):
-    let (dir, name, _) = os.splitFile(file_item.file.name)
-    let export_item_relative_path = os.joinPath(dir, name & "." & desired_export_format)
+  for desired_export_format in file_item.file.export_as.split(';'):
+    let (dir, name, _) = file_item.file.name.splitFile()
+    let export_item_relative_path = dir.joinPath(name & "." & desired_export_format)
     let export_item_name = getExportPath(export_item_relative_path)
-    let export_item_name_dir = os.parentDir(export_item_name)
+    let export_item_name_dir = export_item_name.parentDir()
     os.createDir(export_item_name_dir)
-    let applicable_rules = sequtils.filter(file_item.rules, proc(rule: sitemap_generation_rule): bool = desired_export_format == rule.export_as)
+    let applicable_rules = filter(file_item.rules, proc(rule: sitemap_generation_rule): bool = desired_export_format == rule.export_as)
     for rule in applicable_rules:
-      let applicable_inputs = sequtils.filter(files_as_input, proc(file: string): bool = getRawFileExtension(file) == rule.import_as)
+      let applicable_inputs = filter(files_as_input, proc(file: string): bool = getRawFileExtension(file) == rule.import_as)
       if applicable_inputs.len > 0:
         var exec_command = rule.cmd
-        exec_command = strutils.replace(exec_command, RuleInputFileTag, applicable_inputs[0])
-        exec_command = strutils.replace(exec_command, RuleOutputFileTag, export_item_name)
-        exec_command = strutils.replace(exec_command, RuleOutputDirTag, getExportBasePath())
-        exec_command = strutils.replace(exec_command, RuleSelfDirTag, os.parentDir(sitemap_file_path))
+        exec_command = exec_command.replace(RuleInputFileTag, applicable_inputs[0])
+        exec_command = exec_command.replace(RuleOutputFileTag, export_item_name)
+        exec_command = exec_command.replace(RuleOutputDirTag, getExportBasePath())
+        exec_command = exec_command.replace(RuleSelfDirTag, sitemap_file_path.parentDir())
         echo("Running '" & exec_command & "'...")
-        exit_code = os.execShellCmd(exec_command)
+        exit_code = execShellCmd(exec_command)
         files_as_input.add(export_item_name)
     if applicable_rules.len == 0:
       let src = files_as_input[0]
       let dest = export_item_name
       echo("Copying " & src & " to " & dest & "..")
-      os.copyFile(src, dest)
+      copyFile(src, dest)
       exit_code = 0
     files_as_output.add(export_item_name)
-    files_as_input = sequtils.deduplicate(files_as_input)
+    files_as_input = files_as_input.deduplicate()
   result = processed_file_result(successful_status: exit_code == 0, exported_files: files_as_output)
 
 #
@@ -144,24 +129,16 @@ proc filterUploadableFiles(uploadable_website_file: website_file): seq[string] =
 # this is the entry-point, there is no main()
 # ===========================================
 
-for kind, key, value in parseopt2.getopt():
+for kind, key, value in getopt():
   case kind
-  of cmdLongOption, cmdShortOption:
-    case key
-    of "upload":
-      should_upload = true
-    of "help", "h":
-      usage()
-    of "version", "v":
-      versionInfo()
-    else: discard
   of cmdArgument:
     let expanded_path: string = os.expandTilde(key)
     sitemap_file_path = os.expandFilename(expanded_path)
-  else: discard
+  else:
+    discard
 
-if os.fileExists(sitemap_file_path):
-  let sitemap_file_descriptor = streams.newFileStream(sitemap_file_path)
+if sitemap_file_path.fileExists():
+  let sitemap_file_descriptor = newFileStream(sitemap_file_path)
   yaml.serialization.load(sitemap_file_descriptor, sitemap_data)
   sitemap_file_descriptor.close()
 
@@ -170,7 +147,7 @@ var website_files_to_process: seq[website_file] = @[]
 
 for website_file_item in website_files_to_check:
   let website_full_file_path = getWebsiteFileFullPath(website_file_item.name)
-  let website_file_export_formats = strutils.split(website_file_item.export_as, ';')
+  let website_file_export_formats = website_file_item.export_as.split(';')
   var processing_rules_to_apply = newSeq[sitemap_generation_rule]()
   if fileRequiresProcessing(website_full_file_path, website_file_export_formats):
     for export_file_format in website_file_export_formats:
@@ -179,16 +156,7 @@ for website_file_item in website_files_to_check:
   let processed_file = website_file(file: website_file_item, rules: processing_rules_to_apply)
   website_files_to_process.add(processed_file)
 
-# clear any existing cached directory first, then create the export 
-# directory now we have a list of what should be exported.
-##
-let export_base_path = getExportBasePath()
-let export_path_is_defined = export_base_path.len > 0
-if export_path_is_defined:
-  os.removeDir(export_base_path)
-  os.createDir(export_base_path)
-
 # iterate over the contents of the website that should be updated
-let seqs_of_files_to_upload: seq[seq[string]] = sequtils.map(website_files_to_process, filterUploadableFiles)
-let files_to_upload: seq[string] = sequtils.concat(seqs_of_files_to_upload)
+for item in website_files_to_process:
+  discard filterUploadableFiles(item)
 
