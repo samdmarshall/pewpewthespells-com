@@ -33,8 +33,8 @@ To prepare content for the web, you will need to create a `sitemap.yml` file tha
 export_dir: "relative path from the sitemap file that is where the processed content should be copied to"
 
 rules:
-   - { import_as: "input file extension", export_as: "output file extension", cmd: "command to run that will process the input and turn it into the output"" }
-   ...
+  - { import_as: "input file extension", export_as: "output file extension", cmd: "command to run that will process the input and turn it into the output"" }
+  ...
 
 files:
   - { name: "relative file path", export_as: "semi-colon separate string of file extensions that you want to be exported to for the web" }
