@@ -1,6 +1,6 @@
 import os
 import streams
-import parseopt2
+import parseopt
 
 # imports from third party libraries
 import parsetoml
@@ -17,21 +17,6 @@ type
     input*: string
     output*: string
     command*: string
-  
-proc convertValue(value: TomlValueRef): string =
-   case value.kind
-   of TomlValueKind.None:
-      return ""
-   of TomlValueKind.Int:
-      return $(value.intVal)
-   of TomlValueKind.Float:
-      return $(value.floatVal)
-   of TomlValueKind.Bool:
-      return $(value.boolVal)
-   of TomlValueKind.String:
-      return value.stringVal
-   else:
-      return ""
 
 proc sitemapRoot(sitemap: SiteMap): string =
   let (dir, _, _) = splitFile(sitemap.path)

@@ -10,8 +10,7 @@ import jester
 import parsetoml
 
 import "incantation.nim"
-import "ritual-src/init.nim"
-import "ritual-src/feed.nim"
+import "feed.nim"
 
 # =========
 # Functions
