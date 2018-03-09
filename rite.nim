@@ -4,12 +4,14 @@ import os
 import sequtils
 import strutils
 
+import parsetoml
+
 import "incantation.nim"
 
 type
   website_file = object
-    file: sitemap_website_file
-    rules: seq[sitemap_generation_rule]
+    file: TomlTableRef
+    rules: seq[Rule]
 
   processed_file_result = object
     successful_status: bool
@@ -19,7 +21,6 @@ type
 ##
 const RuleInputFileTag = "%input%"
 const RuleOutputFileTag = "%output%"
-const RuleOutputDirTag = "%output_dir%"
 const RuleSelfDirTag = "%self%"
 
 #
@@ -41,20 +42,14 @@ proc fileRequiresProcessing(website_file_full_path: string, export_extensions: s
 
 #
 ##
-proc getExportBasePath(sitemap_data: sitemap, sitemap_file_path: string): string =
-  let website_base_path = sitemap_file_path.parentDir()
-  let export_path = sitemap_data.export_dir
-  result = website_base_path.joinPath(export_path)
-
-#
-##
-proc getExportPath(sitemap_data: sitemap, sitemap_file_path: string, relative_path: string): string =
-  let full_export_base_path = sitemap_data.getExportBasePath(sitemap_file_path)
+proc getExportPath(sitemap_data: SiteMap, sitemap_file_path: string, relative_path: string): string =
+  let full_export_base_path = sitemap_data.exportDir()
   return full_export_base_path.joinPath(relative_path)
 
+#[
 # process a file based on the rules
 ##
-proc processFile(sitemap_data: sitemap, sitemap_file_path: string, file_item: website_file): processed_file_result =
+proc processFile(sitemap_data: TomlTableRef, sitemap_file_path: string, file_item: website_file): processed_file_result =
   var exit_code: int = 1
   var files_as_input: seq[string] = @[]
   var files_as_output: seq[string] = @[]
@@ -66,11 +61,11 @@ proc processFile(sitemap_data: sitemap, sitemap_file_path: string, file_item: we
     let export_item_name = sitemap_data.getExportPath(sitemap_file_path, export_item_relative_path)
     let export_item_name_dir = export_item_name.parentDir()
     os.createDir(export_item_name_dir)
-    let applicable_rules = filter(file_item.rules, proc(rule: sitemap_generation_rule): bool = desired_export_format == rule.export_as)
+    let applicable_rules = filter(file_item.rules, proc(rule: sitemap_generation_rule): bool = desired_export_format == rule.output)
     for rule in applicable_rules:
-      let applicable_inputs = filter(files_as_input, proc(file: string): bool = getRawFileExtension(file) == rule.import_as)
+      let applicable_inputs = filter(files_as_input, proc(file: string): bool = getRawFileExtension(file) == rule.input)
       if applicable_inputs.len > 0:
-        var exec_command = rule.cmd
+        var exec_command = rule.command
         exec_command = exec_command.replace(RuleInputFileTag, applicable_inputs[0])
         exec_command = exec_command.replace(RuleOutputFileTag, export_item_name)
         exec_command = exec_command.replace(RuleOutputDirTag, sitemap_data.getExportBasePath(sitemap_file_path))
@@ -80,11 +75,30 @@ proc processFile(sitemap_data: sitemap, sitemap_file_path: string, file_item: we
     if applicable_rules.len == 0:
       let src = files_as_input[0]
       let dest = export_item_name
-      copyFile(src, dest)
-      exit_code = 0
-    files_as_output.add(export_item_name)
-    files_as_input = files_as_input.deduplicate()
+      let (_, _, src_ext) = src.splitFile()
+      let (_, _, dest_ext) = dest.splitFile()
+      if src_ext == dest_ext:
+        copyFile(src, dest)
+        exit_code = 0
+      else:
+        echo "No rule found to convert '" & src_ext & "'->'" & dest_ext & "'... Skipping!"
+        exit_code = 1
+    if exit_code == 0:
+      files_as_output.add(export_item_name)
+      files_as_input = files_as_input.deduplicate()
   return processed_file_result(successful_status: exit_code == 0, exported_files: files_as_output)
+]#
+
+proc processDirectory(rules: seq[Rule], dir_path: string) =
+  for kind, path in walkDir(dirPath):
+    case kind
+    of pcFile:
+      let (dir, file, ext) = path.splitFile()
+    of pcDir:
+      processDirectory(rules, path)
+    else:
+      discard
+      
 
 # ===========================================
 # this is the entry-point, there is no main()
@@ -92,8 +106,13 @@ proc processFile(sitemap_data: sitemap, sitemap_file_path: string, file_item: we
 
 when isMainModule:
   let sitemap_file_path = getSitemapFile()
-  let sitemap_data = initWebsite(sitemap_file_path)
+  let sitemap_data = initSite(sitemap_file_path)
 
+  let rules = sitemap_data.rules()
+  processDirectory(rules, sitemap_data.getRoot())    
+        
+
+#[
   for website_file_item in sitemap_data.files:
     let website_full_file_path = sitemap_file_path.getWebsiteFileFullPath(website_file_item.name)
     let website_file_export_formats = website_file_item.export_as.split(';')
@@ -111,3 +130,4 @@ when isMainModule:
     else:
       echo("failure in generation!!")
       break
+]#

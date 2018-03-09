@@ -3,36 +3,64 @@ import streams
 import parseopt2
 
 # imports from third party libraries
-##
-import yaml
+import parsetoml
 
 # defining types for the sitemap file
 ##
 
-type 
-  sitemap_generation_rule* = object
-    import_as*: string
-    export_as*: string
-    cmd*: string
+type
+  SiteMap* = object
+    data: TomlTableRef
+    path: string
 
-  sitemap_website_file* = object
-    name*: string
-    export_as*: string
-    update*: bool
+  Rule* = object
+    input*: string
+    output*: string
+    command*: string
+  
+proc convertValue(value: TomlValueRef): string =
+   case value.kind
+   of TomlValueKind.None:
+      return ""
+   of TomlValueKind.Int:
+      return $(value.intVal)
+   of TomlValueKind.Float:
+      return $(value.floatVal)
+   of TomlValueKind.Bool:
+      return $(value.boolVal)
+   of TomlValueKind.String:
+      return value.stringVal
+   else:
+      return ""
 
-  sitemap* = object
-    export_dir*: string
-    rules*: seq[sitemap_generation_rule]
-    files*: seq[sitemap_website_file]
+proc sitemapRoot(sitemap: SiteMap): string =
+  let (dir, _, _) = splitFile(sitemap.path)
+  return dir
 
-
-proc initWebsite*(path: string): sitemap =
-  var sitemap_data: sitemap
+proc initSite*(path: string): SiteMap =
   if path.fileExists():
-    let sitemap_file_descriptor = newFileStream(path)
-    yaml.serialization.load(sitemap_file_descriptor, sitemap_data)
-    sitemap_file_descriptor.close()
-  return sitemap_data
+    return SiteMap(data: parseFile(path), path: path)
+  else:
+    echo "Unable to load sitemap file!"
+    quit(QuitFailure)
+
+proc rules*(sitemap: SiteMap): seq[Rule] =
+  var defined_rules = sitemap.data.getValueFromFullAddr("rules").arrayVal
+  var rules = newSeq[Rule]()
+  for current_rule in defined_rules:
+    let value = current_rule.tableVal
+    let rule = Rule(input: value.getString("input"), output: value.getString("output"), command: value.getString("command"))
+    rules.add(rule)
+  return rules
+
+proc exportDir*(sitemap: SiteMap): string =
+  return sitemap.sitemapRoot().joinPath(sitemap.data.getString("export.directory"))
+
+proc baseUrl*(sitemap: SiteMap): string =
+  return sitemap.data.getString("export.base_url")
+
+proc getRoot*(sitemap: SiteMap): string =
+  return sitemap.sitemapRoot().joinPath(sitemap.data.getString("root.directory"))
 
 proc getSitemapFile*(): string =
   for kind, key, value in getopt():
