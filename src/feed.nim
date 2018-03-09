@@ -14,6 +14,7 @@ import htmlparser
 
 proc rssFeedContents*(root: string): seq[string] =
   var items = newSeq[string]()
+  echo root
   for kind, path in walkDir(root):
     case kind
     of pcFile:
@@ -46,9 +47,11 @@ proc postDateCompare(a: string, b: string): int =
     return -1
   return 0
 
-proc generateRssFeedXml*(base_url: string, items: seq[string]): string =
-  var feed_xml = <>rss(version="2.0")
+proc generateRssFeedXml*(base_url: string, posts: seq[string]): string =
+  var items = posts
+  items.sort(postDateCompare, SortOrder.Descending)
 
+  var feed_xml = <>rss(version="2.0")
   var channel_title = <>title(newText("Samantha Demi's Blog"))
   var channel_description = <>description(newText("Blog Feed"))
   var channel_link = <>link(newText(base_url))
@@ -66,9 +69,9 @@ proc generateRssFeedXml*(base_url: string, items: seq[string]): string =
       quit(QuitFailure)
     let title_text = found_titles[0].innerText
 
-    let found_descriptions = post_metadata.filter(proc (tag: XmlNode): bool = tag.attrs.hasKey("name") and tag.attrs["name"] == "summary-description")
+    let found_descriptions = post_metadata.filter(proc (tag: XmlNode): bool = tag.attrs.hasKey("name") and tag.attrs["name"] == "summary")
     if found_descriptions.len == 0:
-      echo "unable to locate a summary-description metadata tag for '" & post & "'!"
+      echo "unable to locate a summary metadata tag for '" & post & "'!"
       quit(QuitFailure)
     let description_text = found_descriptions[0].attrs["content"]
 
@@ -85,8 +88,10 @@ proc generateRssFeedXml*(base_url: string, items: seq[string]): string =
     
   return xmlHeader & $feed_xml
 
+#[
 when isMainModule:
   let website_url = "http://pewpewthespells.com/"
   var items = rssFeedContents("~/Site/export/blog".expandTilde())
   items.sort(postDateCompare, SortOrder.Descending)
   echo generateRssFeedXml(website_url, items)
+]#

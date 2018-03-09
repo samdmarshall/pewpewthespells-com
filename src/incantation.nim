@@ -18,9 +18,8 @@ type
     output*: string
     command*: string
 
-proc sitemapRoot(sitemap: SiteMap): string =
-  let (dir, _, _) = splitFile(sitemap.path)
-  return dir
+proc sitemapRoot*(sitemap: SiteMap): string =
+  return sitemap.path.parentDir()
 
 proc initSite*(path: string): SiteMap =
   if path.fileExists():
@@ -46,6 +45,9 @@ proc baseUrl*(sitemap: SiteMap): string =
 
 proc getRoot*(sitemap: SiteMap): string =
   return sitemap.sitemapRoot().joinPath(sitemap.data.getString("root.directory"))
+
+proc getRssFeedDir*(sitemap: SiteMap): string =
+  return sitemap.exportDir().joinPath(sitemap.data.getSTring("export.rss"))
 
 proc getSitemapFile*(): string =
   for kind, key, value in getopt():

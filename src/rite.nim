@@ -12,12 +12,28 @@ import "incantation.nim"
 # ================
 const RuleInputFileTag = "%input%"
 const RuleOutputFileTag = "%output%"
+const RuleSelfDirTag = "%self%"
 
 # =========
 # Functions
 # =========
 
+proc filterRules(rules: seq[Rule], ext: string): seq[Rule] = 
+  var applicable_rules = newSeq[Rule]()
+  for rule in rules:
+    if rule.input == ext:
+      applicable_rules.add(rule)
+  return applicable_rules
+
+proc isStale(input_path: string, output_path: string): bool =
+  let is_exported = fileExists(output_path)
+  if not is_exported:
+    return true
+  let is_up_to_date = output_path.fileNewer(input_path)
+  return not (is_exported and is_up_to_date)
+
 proc processDirectory(sitemap: SiteMap, dir_path: string) =
+  var all_rules = sitemap.rules()
   for kind, path in walkDir(dir_path):
     var exit_code = 0
     let (_, _, ext) = path.splitFile()
@@ -26,22 +42,32 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
     let export_path = sitemap.exportDir().joinPath(relative_path)
     case kind
     of pcFile:
-      let applicable_rules = sitemap.rules().filter(proc (rule: Rule): bool = rule.input == ext)
+      let applicable_rules = filterRules(all_rules, ext)
       if len(applicable_rules) > 0:
         for rule in applicable_rules:
           let (out_dir, out_name, _) = export_path.splitFile()
           let export_path_ext = out_dir.joinPath(out_name & rule.output)
           var output_export_path = export_path_ext
           removePrefix(output_export_path, sitemap.exportDir())
-          var command_template = rule.command
-          command_template = command_template.replace(RuleInputFileTag, path)
-          command_template = command_template.replace(RuleOutputFileTag, export_path_ext)
-          echo "Generating '" & output_export_path & "'..."
-          exit_code = execShellCmd(command_template)
+          if isStale(path, export_path_ext):
+            var command_template = rule.command
+            command_template = command_template.replace(RuleInputFileTag, path)
+            command_template = command_template.replace(RuleOutputFileTag, export_path_ext)
+            command_template = command_template.replace(RuleSelfDirTag, sitemap.sitemapRoot())
+            echo "Generating '" & output_export_path & "'..."
+            exit_code = execShellCmd(command_template)
+          else:
+            echo "Skipping '" & output_export_path & "'..."
       else:
-        copyFile(path, export_path)
+        if isStale(path, export_path):
+          echo "Copying '" & relative_path & "'..."
+          copyFile(path, export_path)
+        else:
+          echo "Skipping '" & relative_path & "'..."
     of pcDir:
-      createDir(export_path)
+      if not dirExists(export_path):
+        echo "Creating '" & relative_path & "/'..."
+        createDir(export_path)
       processDirectory(sitemap, path)
     else:
       discard
@@ -56,5 +82,6 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
 when isMainModule:
   let sitemap_file_path = getSitemapFile()
   let sitemap = initSite(sitemap_file_path)
-  createDir(sitemap.exportDir().expandFilename())
+  echo "Exporting to: " & sitemap.exportDir()
+  createDir(sitemap.exportDir())
   processDirectory(sitemap, sitemap.getRoot())
