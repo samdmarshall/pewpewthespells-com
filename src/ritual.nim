@@ -3,6 +3,8 @@
 # =======
 
 import os
+import ospaths
+import sequtils
 import strutils
 import asyncdispatch
 
@@ -11,11 +13,7 @@ import parsetoml
 
 import "incantation.nim"
 import "feed.nim"
-
-# =========
-# Functions
-# =========
-
+import "familiar.nim"
 
 # ===========
 # Entry Point
@@ -31,8 +29,6 @@ if not website_root.existsDir():
   quit(QuitFailure)
 
 let feed_items = rssFeedContents(sitemap.getRssFeedDir())
-echo feed_items
-
 let feed_contents = generateRssFeedXml(sitemap.base_url, feed_items)
 
 settings:
@@ -42,6 +38,9 @@ routes:
   get "/feed.xml":
     resp feed_contents
   get "/":
+    if wantsPlainTextContent(request):
+      let plain_content = getPlainTextForRequest(request, sitemap.exportDir())
+      resp(plain_content, "text/plain")
     pass() # pass directly onto the static hosted content
 
 runForever()

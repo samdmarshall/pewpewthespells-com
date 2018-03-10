@@ -5,7 +5,7 @@ license = "BSD 3-Clause"
 
 bin = @["ritual", "rite"]
 srcDir = "src/"
-skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim"]
+skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim", "familiar.nim"]
 
 requires "jester"
 requires "parsetoml"
