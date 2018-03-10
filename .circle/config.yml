@@ -1,0 +1,12 @@
+---
+version: 2
+jobs:
+  build:
+    docker:
+      - image: nimlang/nim:latest
+    steps:
+      - checkout
+      - run:
+          name: build
+          command: nimble build
+          
