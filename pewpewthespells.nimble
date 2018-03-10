@@ -1,4 +1,4 @@
-version = "0.1"
+version = "0.2"
 author = "Samantha Marshall"
 description = "website stack"
 license = "BSD 3-Clause"
@@ -11,7 +11,7 @@ requires "jester"
 requires "parsetoml"
 
 task clean, "clean up from build":
-  exec "rm -rd nimcache/ rite ritual"
+  exec "rm -rd src/nimcache/ rite ritual"
 
 task config, "install necessary configuration files":
   exec "cp ./configuration/lib/systemd/service/ritual.service /lib/systemd/service/"
