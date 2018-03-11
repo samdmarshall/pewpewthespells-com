@@ -1,4 +1,5 @@
 import os
+import strutils
 import streams
 import parseopt
 
@@ -38,7 +39,11 @@ proc rules*(sitemap: SiteMap): seq[Rule] =
   return rules
 
 proc exportDir*(sitemap: SiteMap): string =
-  return sitemap.sitemapRoot().joinPath(sitemap.data.getString("export.directory"))
+  let dir = sitemap.data.getString("export.directory")
+  if dir.startsWith("/"):
+    return dir
+  else:
+    return sitemap.sitemapRoot().joinPath(dir)
 
 proc baseUrl*(sitemap: SiteMap): string =
   return sitemap.data.getString("export.base_url")
