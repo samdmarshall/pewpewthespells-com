@@ -6,8 +6,8 @@ After=network.target
 [Service]
 Type=simple
 PIDFile=/run/ritual.pid
-ExecStart=/home/samdm/Projects/pewpewthespells-com/ritual /home/samdm/Projects/WebsiteBackup/sitemap.yml
-ExecReload=killall ritual ; /home/samdm/Projects/pewpewthespells-com/ritual /home/samdm/Projects/WebsiteBackup/sitemap.yml
+ExecStart=/home/samdm/Projects/pewpewthespells-com/ritual /home/samdm/Projects/WebsiteBackup/sitemap.toml
+ExecReload=killall ritual ; /home/samdm/Projects/pewpewthespells-com/ritual /home/samdm/Projects/WebsiteBackup/sitemap.toml
 ExecStop=-killall ritual
 TimeoutStopSec=5
 KillMode=mixed
