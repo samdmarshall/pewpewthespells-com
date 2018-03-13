@@ -14,9 +14,9 @@ task clean, "clean up from build":
   exec "rm -rd src/nimcache/ rite ritual"
 
 task config, "install necessary configuration files":
-  exec "cp ./configuration/lib/systemd/service/ritual.service /lib/systemd/service/"
-  exec "cp ./configuration/etc/init/ritual.conf /etc/init/"
-  exec "cp ./configuration/etc/nginx/nginx.conf /etc/nginx/"
+  echo "sudo cp ./configuration/lib/systemd/service/ritual.service /lib/systemd/system/"
+  echo "sudo cp ./configuration/etc/init/ritual.conf /etc/init/"
+  echo "sudo cp ./configuration/etc/nginx/nginx.conf /etc/nginx/"
 
 task unconfig, "removes the configuration files":
-  exec "rm /lib/systemd/service/ritual.service /etc/init/ritual.conf /etc/nginx/nginx.conf"
+  echo "rm /lib/systemd/system/ritual.service /etc/init/ritual.conf /etc/nginx/nginx.conf"
