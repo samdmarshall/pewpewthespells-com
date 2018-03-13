@@ -47,7 +47,7 @@ proc postDateCompare(a: string, b: string): int =
     return -1
   return 0
 
-proc generateRssFeedXml*(base_url: string, posts: seq[string]): string =
+proc generateRssFeedXml*(base_url: string, export_dir: string, posts: seq[string]): string =
   var items = posts
   items.sort(postDateCompare, SortOrder.Descending)
 
@@ -77,7 +77,8 @@ proc generateRssFeedXml*(base_url: string, posts: seq[string]): string =
 
     var title = <>title(newText(title_text))
     var description = <>description(newText(description_text))
-    var link = <>link(newText(post))
+    let post_url = post.replace(export_dir, base_url)
+    var link = <>link(newText(post_url))
 
     var entry = <>item()
     entry.add(title)

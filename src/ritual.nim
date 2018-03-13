@@ -29,7 +29,7 @@ if not website_root.existsDir():
   quit(QuitFailure)
 
 let feed_items = rssFeedContents(sitemap.getRssFeedDir())
-let feed_contents = generateRssFeedXml(sitemap.base_url, feed_items)
+let feed_contents = generateRssFeedXml(sitemap.base_url, website_root, feed_items)
 
 settings:
   staticDir = website_root
