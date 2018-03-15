@@ -1,0 +1,22 @@
+---
+version: 2
+jobs:
+  build:
+    docker:
+      - image: nimlang/nim:latest
+    steps:
+      - checkout
+      - run: nimble --accept build 
+  danger:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: yarn install
+      - run: yarn exec danger ci
+workflows:
+  version: 2
+  primary:
+    jobs:
+      - build
+      - danger

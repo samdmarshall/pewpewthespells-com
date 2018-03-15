@@ -3,6 +3,7 @@
 
 # build artifacts
 nimcache/
+node_modules/
 
 # binaries
 rite
