@@ -2,16 +2,19 @@
 version: 2
 jobs:
   build:
-    machine: true
+    docker:
+      - image: nimlang/nim:0.18.0-alpine
+    steps:
+      - checkout
+      - run: apk update
+      - run: apk add openssl
+      - run: nimble build -y
+  danger:
+    docker:
+      - image: library/node:8-alpine
     environment:
-      - CI
-      - CIRCLECI
-      - CIRCLE_BRANCH
-      - CIRCLE_JOB
-      - CIRCLE_PULL_REQUEST
-      - CIRCLE_REPOSITORY_URL
-      - CIRCLE_SHA1
       - DANGER_GITHUB_API_TOKEN
     steps:
       - checkout
-      - run: docker build .
+      - run: yarn install
+      - run: yarn exec danger ci
