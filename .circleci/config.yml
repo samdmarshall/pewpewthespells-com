@@ -13,9 +13,9 @@ jobs:
     steps:
       - checkout
       - run: yarn install
-      - run: yarn exec danger ci --id PR --file PR-Dangerfile.js
-      - run: yarn exec danger ci --id nim --file Nim-Dangerfile.js
-      - run: yarn exec danger ci --id site --file Site-Dangerfile.js
+      - run: yarn exec danger ci --id PR --dangerfile PR-Dangerfile.js
+      - run: yarn exec danger ci --id nim --dangerfile Nim-Dangerfile.js
+      - run: yarn exec danger ci --id site --dangerfile Site-Dangerfile.js
 workflows:
   version: 2
   primary:
