@@ -6,7 +6,15 @@ jobs:
       - image: nimlang/nim:latest
     steps:
       - checkout
-      - run:
-          name: build
-          command: nimble build
-          
+      - run: nimble build
+  danger:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+workflows:
+  version: 2
+  primary:
+    jobs:
+      - build
+      - danger
