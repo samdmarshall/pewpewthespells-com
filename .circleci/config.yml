@@ -12,8 +12,6 @@ jobs:
   danger:
     docker:
       - image: library/node:8-alpine
-    environment:
-      - DANGER_GITHUB_API_TOKEN
     steps:
       - checkout
       - run: yarn install
