@@ -13,7 +13,7 @@ jobs:
     steps:
       - checkout
       - run: yarn install
-      - run: danger
+      - run: yarn exec danger
 workflows:
   version: 2
   primary:
