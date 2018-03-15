@@ -8,7 +8,15 @@ jobs:
       - checkout
       - run: apk update
       - run: apk add openssl
-      - run: nimble build -y
+      - run: nimble build --accept
+  test:
+    docker:
+      - image: nimlang/nim:0.18.0-alpine
+    steps:
+      - checkout
+      - run: apk update
+      - run: apk add openssl
+      - run: nimble test
   danger:
     docker:
       - image: library/node:8-alpine
@@ -19,7 +27,10 @@ jobs:
 
 workflows:
   version: 2
-  build_and_danger:
+  primary:
     jobs:
       - build
+      - test:
+          - requires:
+              - build
       - danger
