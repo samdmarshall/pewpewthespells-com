@@ -5,7 +5,7 @@ COPY . /src
 WORKDIR /src
 RUN nimble build -y
 
-FROM library/node:8
+FROM library/node:8-alpine
 COPY . /src
 WORKDIR /src
 RUN yarn install

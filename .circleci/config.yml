@@ -3,6 +3,15 @@ version: 2
 jobs:
   build:
     machine: true
+    environment:
+      - CI
+      - CIRCLECI
+      - CIRCLE_BRANCH
+      - CIRCLE_JOB
+      - CIRCLE_PULL_REQUEST
+      - CIRCLE_REPOSITORY_URL
+      - CIRCLE_SHA1
+      - DANGER_GITHUB_API_TOKEN
     steps:
       - checkout
       - run: docker build .
