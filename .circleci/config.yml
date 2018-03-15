@@ -12,6 +12,8 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
+      - run: yarn install
+      - run: danger
 workflows:
   version: 2
   primary:
