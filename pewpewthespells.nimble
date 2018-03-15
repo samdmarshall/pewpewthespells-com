@@ -7,8 +7,15 @@ bin = @["ritual", "rite"]
 srcDir = "src/"
 skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim", "familiar.nim"]
 
-requires "jester"
-requires "parsetoml"
+requires "jester 0.2.0"
+requires "parsetoml 0.2.0"
+
+when defined(nimdistros):
+   import distros
+   if detectOs(Ubuntu):
+      foreignDep "libssl-dev"
+   else:
+      foreignDep "openssl"
 
 task clean, "clean up from build":
   exec "rm -rd src/nimcache/ rite ritual"
