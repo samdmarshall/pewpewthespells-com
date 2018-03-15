@@ -6,7 +6,7 @@ jobs:
       - image: nimlang/nim:latest
     steps:
       - checkout
-      - run: nimble build
+      - run: nimble --accept build 
   danger:
     docker:
       - image: circleci/node:8
