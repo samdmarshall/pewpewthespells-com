@@ -18,3 +18,10 @@ jobs:
       - checkout
       - run: yarn install
       - run: yarn exec danger ci
+
+workflows:
+  version: 2
+  build_and_danger:
+    jobs:
+      - build
+      - danger
