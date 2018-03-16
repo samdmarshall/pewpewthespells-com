@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run: apk update
       - run: apk add openssl
-      - run: nimble test --accept
+      - run: nimble -y test
   danger:
     docker:
       - image: library/node:8-alpine
