@@ -18,7 +18,12 @@ when defined(nimdistros):
       foreignDep "openssl"
 
 task clean, "clean up from build":
-  exec "rm -rd src/nimcache/ rite ritual"
+  exec "rm rite ritual"
+  withDir "src/":
+    exec "rm -rd nimcache/"
+  withDir "tests/":
+    exec "rm -rd nimcache/"
+    exec "rm t_rite"
 
 task config, "install necessary configuration files":
   echo "sudo cp ./configuration/lib/systemd/service/ritual.service /lib/systemd/system/"
@@ -27,3 +32,7 @@ task config, "install necessary configuration files":
 
 task unconfig, "removes the configuration files":
   echo "rm /lib/systemd/system/ritual.service /etc/init/ritual.conf /etc/nginx/nginx.conf"
+
+task test, "run unit tests":
+  withDir "tests":
+    exec "nim c -r t_rite.nim"
