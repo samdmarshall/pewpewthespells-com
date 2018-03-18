@@ -10,6 +10,10 @@ skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim", "familiar
 requires "jester 0.2.0"
 requires "parsetoml 0.2.0"
 
+#[ -------------------------------------- ]#
+import strutils
+import ospaths
+
 when defined(nimdistros):
    import distros
    if detectOs(Ubuntu):
@@ -18,13 +22,14 @@ when defined(nimdistros):
       foreignDep "openssl"
 
 task clean, "clean up from build":
-  exec "rm rite ritual"
+  rmFile("rite")
+  rmFile("ritual")
+  rmDir("report/")
   withDir "src/":
-    exec "rm -rd nimcache/"
+    rmDir("nimcache/")
   withDir "tests/":
-    exec "rm -rd nimcache/"
-    exec "rm t_rite"
-    exec "rm *-junit.xml"
+    rmDir("nimcache/")
+    rmFile("t_rite")
 
 task config, "install necessary configuration files":
   echo "sudo cp ./configuration/lib/systemd/service/ritual.service /lib/systemd/system/"
@@ -37,3 +42,7 @@ task unconfig, "removes the configuration files":
 task test, "run unit tests":
   withDir "tests":
     exec "nim c -r t_rite.nim"
+  mkDir("report/")
+  for file in listFiles("tests/"):
+    if endsWith(file, "-junit.xml"):
+      mvFile(file, joinPath("report/", extractFilename(file)))
