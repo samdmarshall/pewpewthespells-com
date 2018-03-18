@@ -4,7 +4,7 @@
 # build artifacts
 nimcache/
 node_modules/
-tests/*-junit.xml
+report/
 yarn-*.log
 
 # binaries
