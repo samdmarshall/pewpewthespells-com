@@ -17,8 +17,8 @@ jobs:
       - run: apk update
       - run: apk add openssl
       - run: nimble -y test
-    store_test_results:
-      path: junit.xml
+      - store_test_results:
+          path: junit.xml
   danger:
     docker:
       - image: library/node:8-alpine
@@ -29,6 +29,14 @@ jobs:
 
 workflows:
   version: 2
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
   primary:
     jobs:
       - build
