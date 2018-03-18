@@ -4,6 +4,7 @@
 # build artifacts
 nimcache/
 node_modules/
+junit.xml
 
 # binaries
 rite
