@@ -5,6 +5,7 @@
 nimcache/
 node_modules/
 junit.xml
+yarn-*.log
 
 # binaries
 rite
