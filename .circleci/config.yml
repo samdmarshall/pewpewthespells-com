@@ -19,6 +19,8 @@ jobs:
       - run: nimble -y test
       - store_test_results:
           path: junit.xml
+      - store_artifacts:
+          path: junit.xml
   danger:
     docker:
       - image: library/node:8-alpine
