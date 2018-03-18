@@ -18,9 +18,9 @@ jobs:
       - run: apk add openssl
       - run: nimble -y test
       - store_test_results:
-          path: junit.xml
+          path: tests/*-junit.xml
       - store_artifacts:
-          path: junit.xml
+          path: tests/*-junit.xml
   danger:
     docker:
       - image: library/node:8-alpine

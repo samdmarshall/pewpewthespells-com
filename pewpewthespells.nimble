@@ -24,6 +24,7 @@ task clean, "clean up from build":
   withDir "tests/":
     exec "rm -rd nimcache/"
     exec "rm t_rite"
+    exec "rm *-junit.xml"
 
 task config, "install necessary configuration files":
   echo "sudo cp ./configuration/lib/systemd/service/ritual.service /lib/systemd/system/"

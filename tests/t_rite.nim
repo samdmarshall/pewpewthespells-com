@@ -1,7 +1,8 @@
 import streams
 import unittest
 
-var stream = newFileStream("../junit.xml", fmWrite)
+
+var stream = newFileStream("t_rite-junit.xml", fmWrite)
 var junit = newJUnitOutputFormatter(stream)
 addOutputFormatter(junit)
 
