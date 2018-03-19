@@ -1,5 +1,5 @@
-const {danger, warn} = require('danger')
-const {includes} = require('lodash')
+import {danger, warn} from 'danger'
+import includes from 'lodash'
 
 // No PR is too small to include a description of why you made a change
 if (danger.github.pr.body.length < 10) {
@@ -21,3 +21,6 @@ if (!hasChangelog) {
 		warn("Please add a changelog entry for your changes.")
 }
 
+// check that all of the documents are spell-check
+import spellcheck from 'danger-plugin-spellcheck'
+spellcheck()
