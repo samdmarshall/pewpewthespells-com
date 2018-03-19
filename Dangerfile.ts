@@ -23,5 +23,5 @@ if (!hasChangelog && !isTrivial) {
 }
 
 // check yarn
-import yarn from "danger-plugin-yarn"
+const {yarn} = require('danger-plugin-yarn')
 yarn()
