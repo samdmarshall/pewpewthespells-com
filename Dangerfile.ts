@@ -21,3 +21,7 @@ const isTrivial = contains((danger.github.pr.body + danger.github.pr.title), "#t
 if (!hasChangelog && !isTrivial) {
 		warn("Please add a changelog entry for your changes.")
 }
+
+// check yarn
+import yarn from "danger-plugin-yarn"
+yarn()
