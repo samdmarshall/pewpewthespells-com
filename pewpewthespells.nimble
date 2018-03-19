@@ -1,6 +1,6 @@
 version = "0.2"
-author = "Samantha Marshall"
-description = "website stack"
+author = "Samantha Demi"
+description = "pewpewthespells.com website stack"
 license = "BSD 3-Clause"
 
 bin = @["ritual", "rite"]
@@ -45,7 +45,9 @@ task unconfig, "removes the configuration files":
 
 task test, "run unit tests":
   withDir "tests":
-    exec "nim c -r t_rite.nim"
+    for file in listFiles("."):
+      if endsWith(file, ".nim"):
+        exec "nim c -r " & file
   mkDir("report/")
   for file in listFiles("tests/"):
     if endsWith(file, "-junit.xml"):
