@@ -1,6 +1,5 @@
 const {danger, warn} = require('danger')
 const {includes} = require('lodash')
-const {yarn} = require('danger-plugin-yarn')
 
 // No PR is too small to include a description of why you made a change
 if (danger.github.pr.body.length < 10) {
@@ -22,5 +21,3 @@ if (!hasChangelog) {
 		warn("Please add a changelog entry for your changes.")
 }
 
-// check yarn
-//yarn()
