@@ -1,6 +1,5 @@
 const {danger, warn} = require('danger')
 const {includes} = require('lodash')
-const {contains} = require('lodash.contains')
 const {yarn} = require('danger-plugin-yarn')
 
 // No PR is too small to include a description of why you made a change
@@ -19,9 +18,7 @@ if (packageChanged && !lockfileChanged) {
 
 // Add a CHANGELOG entry for app changes
 const hasChangelog = includes(danger.git.modified_files, "changelog.md")
-const isTrivial = contains((danger.github.pr.body + danger.github.pr.title), "#trivial")
-
-if (!hasChangelog && !isTrivial) {
+if (!hasChangelog) {
 		warn("Please add a changelog entry for your changes.")
 }
 
