@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "danger": "^3.2.0",
-    "danger-plugin-yarn": "^1.2.1"
+    "danger-plugin-yarn": "^1.2.1",
+    "lodash": "^4.17.5"
   }
 }
