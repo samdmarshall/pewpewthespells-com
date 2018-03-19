@@ -23,4 +23,4 @@ if (!hasChangelog) {
 }
 
 // check yarn
-yarn()
+//yarn()
