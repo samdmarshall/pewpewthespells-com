@@ -1,5 +1,6 @@
 const {danger, warn} = require('danger')
-const {includes, contains} = require('lodash')
+const {includes} = require('lodash')
+const {contains} = require('lodash.contains')
 const {yarn} = require('danger-plugin-yarn')
 
 // No PR is too small to include a description of why you made a change
