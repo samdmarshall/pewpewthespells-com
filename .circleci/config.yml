@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run: apk update
       - run: apk add openssl
-      - run: nimble -y test
+      - run: nimble build test --accept
       - store_test_results:
           path: report/
       - store_artifacts:
