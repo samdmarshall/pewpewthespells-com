@@ -1,11 +1,6 @@
 {
 		"name": "pewpewthespells-com",
 		"license": "MIT",
-		"engines": {
-				"node": "8.0.x",
-				"npm": "5.0.x",
-				"yarn": "1.x"
-		},
 		"devDependencies": {
 				"danger": "^3.2.0",
 				"danger-plugin-spellcheck": "^1.2.2",
