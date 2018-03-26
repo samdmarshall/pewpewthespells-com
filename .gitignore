@@ -4,6 +4,8 @@
 # build artifacts
 nimcache/
 node_modules/
+report/
+yarn-*.log
 
 # binaries
 rite

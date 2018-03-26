@@ -3,20 +3,43 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nimlang/nim:latest
+      - image: nimlang/nim:0.18.0-alpine
     steps:
       - checkout
-      - run: nimble --accept build 
+      - run: apk update
+      - run: apk add openssl
+      - run: apk add pcre
+      - run: nimble build --accept
+  test:
+    docker:
+      - image: nimlang/nim:0.18.0-alpine
+    steps:
+      - checkout
+      - run: apk update
+      - run: apk add openssl
+      - run: apk add pcre
+      - run: nimble build --accept
+      - run: nimble test
+      - store_test_results:
+          path: report/
+      - store_artifacts:
+          path: report/
   danger:
     docker:
-      - image: circleci/node:8
+      - image: library/node:8-alpine
     steps:
       - checkout
       - run: yarn install
       - run: yarn exec danger ci
+
 workflows:
   version: 2
   primary:
     jobs:
       - build
-      - danger
+      - test:
+          requires:
+            - build
+      - danger:
+          requires:
+            - test
