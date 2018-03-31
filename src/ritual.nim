@@ -3,6 +3,7 @@
 # =======
 
 import os
+import re
 import times
 import ospaths
 import sequtils
@@ -46,7 +47,7 @@ settings:
 routes:
   get "/feed.xml":
     resp feed_contents
-  get "/":
+  get re"^\/.*":
     if transDayOfVisibility():
       redirect("https://wewantto.live")
     if wantsPlainTextContent(request):
