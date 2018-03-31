@@ -3,6 +3,7 @@
 # =======
 
 import os
+import times
 import ospaths
 import sequtils
 import strutils
@@ -14,6 +15,14 @@ import parsetoml
 import "incantation.nim"
 import "feed.nim"
 import "familiar.nim"
+
+# =========
+# Functions
+# =========
+
+proc transDayOfVisibility(): bool =
+  let today = now()
+  return (today.month == mMar and today.monthday == 31)
 
 # ===========
 # Entry Point
@@ -38,6 +47,8 @@ routes:
   get "/feed.xml":
     resp feed_contents
   get "/":
+    if transDayOfVisibility():
+      redirect("https://wewantto.live")
     if wantsPlainTextContent(request):
       let plain_content = getPlainTextForRequest(request, sitemap.exportDir())
       resp(plain_content, "text/plain")
