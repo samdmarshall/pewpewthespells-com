@@ -1,5 +1,8 @@
 # Changelog
 
+## [2018-03-31]
+- Adding redirect for Trans Day of Visibility
+
 ## [2018-03-26]
 - Adding Danger
 - Adding CI with CircleCI
