@@ -47,6 +47,10 @@ settings:
 routes:
   get "/feed.xml":
     resp feed_contents
+  get "/keybase.txt":
+    pass()
+  get "/.well_known/keybase.txt":
+    pass()
   get re"^\/.*":
     if transDayOfVisibility():
       redirect("https://wewantto.live")

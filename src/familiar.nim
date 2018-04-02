@@ -1,4 +1,5 @@
 import strutils
+import strtabs
 import ospaths
 import jester
 
@@ -10,7 +11,11 @@ const PlaintextUserAgents = @[
 ]
 
 proc wantsPlainTextContent*(request: Request): bool =
-  let wants_plaintext = request.headers["Accept"] == "text/plain"
+  let wants_plaintext = 
+    if request.headers.hasKey("Accept"):
+      request.headers["Accept"] == "text/plain"
+    else:
+      false
   var is_plaintext_agent = false
   for match in PlainTextUserAgents:
     is_plaintext_agent = request.headers["User-Agent"].toLower().contains(match)
