@@ -43,6 +43,7 @@ workflows:
   version: 2
   primary:
     jobs:
+      - lint
       - build
       - test:
           requires:

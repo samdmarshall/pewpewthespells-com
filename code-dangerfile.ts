@@ -21,6 +21,3 @@ if (!hasChangelog) {
 		warn("Please add a changelog entry for your changes.")
 }
 
-// check that all of the documents are spell-check
-import spellcheck from 'danger-plugin-spellcheck'
-spellcheck()
