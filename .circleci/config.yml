@@ -1,13 +1,6 @@
 ---
 version: 2
 jobs:
-  lint:
-    docker:
-      - image: library/node:8-alpine
-    steps:
-      - checkout
-      - run: yarn install
-      - run: yarn danger ci --dangerfile content-dangerfile.ts
   build:
     docker:
       - image: nimlang/nim:0.18.0-alpine
@@ -43,7 +36,6 @@ workflows:
   version: 2
   primary:
     jobs:
-      - lint
       - build
       - test:
           requires:
