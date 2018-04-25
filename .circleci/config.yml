@@ -30,7 +30,7 @@ jobs:
     steps:
       - checkout
       - run: yarn install
-      - run: yarn exec danger ci
+      - run: yarn danger ci --dangerfile code-dangerfile.ts
 
 workflows:
   version: 2
