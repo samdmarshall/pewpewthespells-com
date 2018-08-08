@@ -7,11 +7,10 @@ import parseopt
 import parsetoml
 
 # defining types for the sitemap file
-##
 
 type
   SiteMap* = object
-    data: TomlTableRef
+    data: TomlValueRef
     path: string
 
   Rule* = object
@@ -24,35 +23,36 @@ proc sitemapRoot*(sitemap: SiteMap): string =
 
 proc initSite*(path: string): SiteMap =
   if path.fileExists():
-    return SiteMap(data: parseFile(path), path: path)
+    let table = parsefile(path)
+    return SiteMap(data: table, path: path)
   else:
     echo "Unable to load sitemap file!"
     quit(QuitFailure)
 
 proc rules*(sitemap: SiteMap): seq[Rule] =
-  var defined_rules = sitemap.data.getValueFromFullAddr("rules").arrayVal
+  var defined_rules = sitemap.data["rules"].arrayVal
   var rules = newSeq[Rule]()
   for current_rule in defined_rules:
     let value = current_rule.tableVal
-    let rule = Rule(input: value.getString("input"), output: value.getString("output"), command: value.getString("command"))
+    let rule = Rule(input: value["input"].getStr(), output: value["output"].getStr(), command: value["command"].getStr())
     rules.add(rule)
   return rules
 
 proc exportDir*(sitemap: SiteMap): string =
-  let dir = sitemap.data.getString("export.directory")
+  let dir = sitemap.data["export"]["directory"].getStr()
   if dir.startsWith("/"):
     return dir
   else:
     return sitemap.sitemapRoot().joinPath(dir)
 
 proc baseUrl*(sitemap: SiteMap): string =
-  return sitemap.data.getString("export.base_url")
+  return sitemap.data["export"]["base_url"].getStr()
 
 proc getRoot*(sitemap: SiteMap): string =
-  return sitemap.sitemapRoot().joinPath(sitemap.data.getString("root.directory"))
+  return sitemap.sitemapRoot().joinPath(sitemap.data["root"]["directory"].getStr())
 
 proc getRssFeedDir*(sitemap: SiteMap): string =
-  return sitemap.exportDir().joinPath(sitemap.data.getSTring("export.rss"))
+  return sitemap.exportDir().joinPath(sitemap.data["export"]["rss"].getStr())
 
 proc getSitemapFile*(): string =
   for kind, key, value in getopt():
