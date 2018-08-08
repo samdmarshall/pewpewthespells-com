@@ -24,14 +24,6 @@ jobs:
           path: report/
       - store_artifacts:
           path: report/
-  danger:
-    docker:
-      - image: library/node:8-alpine
-    steps:
-      - checkout
-      - run: yarn install
-      - run: yarn danger ci --dangerfile code-dangerfile.ts
-
 workflows:
   version: 2
   primary:
@@ -40,6 +32,3 @@ workflows:
       - test:
           requires:
             - build
-      - danger:
-          requires:
-            - test

@@ -8,7 +8,7 @@ srcDir = "src/"
 skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim", "familiar.nim"]
 
 requires "jester 0.2.0"
-requires "parsetoml 0.2.0"
+requires "parsetoml 0.3.2"
 
 #[ -------------------------------------- ]#
 #[               Build Tasks              ]#
