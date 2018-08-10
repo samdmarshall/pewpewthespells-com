@@ -24,6 +24,14 @@ jobs:
           path: report/
       - store_artifacts:
           path: report/
+  danger:
+    docker:
+      - image: node:8
+    steps:
+      - checkout
+      - run: npm install -g yarn
+      - run: yarn install
+      - run: yarn exec danger ci --danger-file=code-dangerfile.ts
 workflows:
   version: 2
   primary:
