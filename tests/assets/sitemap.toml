@@ -1,0 +1,22 @@
+[root]
+directory = "../../content/site/"
+
+[export]
+directory = "/var/www/pewpewthespells.com/public_html/"
+base_url = "https://pewpewthespells.com/"
+rss = "blog/"
+
+[[rules]]
+input = ".md"
+output = ".html"
+command = "pandoc --from markdown+grid_tables --to html5 --include-in-header=%self%/header.html --highlight-style=pygments --email-obfuscation=references \"%input%\" --output \"%output%\" --template=%self%/html.template"
+
+[[rules]]
+input = ".md"
+output = ".pdf"
+command = "pandoc --from markdown+grid_tables --to html5 --include-in-header=%self%/header.html --highlight-style=pygments --email-obfuscation=references \"%input%\" --output \"%output%\" --template=%self%/html.template --pdf-engine=weasyprint --pdf-engine-opt=--base-url='https://pewpewthespells.com/'"
+
+[[rules]]
+input = ".md"
+output = ".txt"
+command = "pandoc --from markdown+grid_tables --to plain \"%input%\" --output \"%output%\" --template=%self%/plain.template"

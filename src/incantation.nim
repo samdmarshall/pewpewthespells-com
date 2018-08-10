@@ -18,16 +18,34 @@ type
     output*: string
     command*: string
 
+
+proc validate*(sitemap: SiteMap): bool =
+  if not sitemap.data.hasKey("root"):
+    return false
+  if not sitemap.data["root"].hasKey("directory"):
+    return false
+  if not sitemap.data.hasKey("export"):
+    return false
+  let export_directory = sitemap.data["export"].hasKey("directory")
+  let export_base_url = sitemap.data["export"].hasKey("base_url")
+  let export_rss = sitemap.data["export"].hasKey("rss")
+  if not export_directory or not export_base_url or not export_rss:
+    return false
+  if not sitemap.data.hasKey("rules"):
+    return false
+  return true
+
 proc sitemapRoot*(sitemap: SiteMap): string =
   return sitemap.path.parentDir()
 
 proc initSite*(path: string): SiteMap =
   if path.fileExists():
     let table = parsefile(path)
-    return SiteMap(data: table, path: path)
-  else:
-    echo "Unable to load sitemap file!"
-    quit(QuitFailure)
+    let map = SiteMap(data: table, path: path)
+    if map.validate():
+      return map
+  echo "Unable to load sitemap file!"
+  quit(QuitFailure)
 
 proc rules*(sitemap: SiteMap): seq[Rule] =
   var defined_rules = sitemap.data["rules"].arrayVal
