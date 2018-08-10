@@ -32,6 +32,7 @@ jobs:
       - run: npm install -g yarn
       - run: yarn install
       - run: yarn danger ci
+      - run: ls -lsa
 workflows:
   version: 2
   primary:
