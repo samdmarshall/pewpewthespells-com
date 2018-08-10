@@ -31,7 +31,7 @@ jobs:
       - checkout
       - run: npm install -g yarn
       - run: yarn install
-      - run: yarn exec danger ci --danger-file=code-dangerfile.ts
+      - run: yarn exec danger ci --dangerfile code-dangerfile.ts
 workflows:
   version: 2
   primary:
