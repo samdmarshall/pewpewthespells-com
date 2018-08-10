@@ -31,8 +31,6 @@ jobs:
       - checkout
       - run: npm install -g yarn
       - run: yarn install
-      - run: curl https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_PREVIOUS_BUILD/artifacts | grep -o 'https://[^"]*' > artifacts.txt
-      - run: <artifacts.txt xargs -P4 -I % curl %
       - run: yarn danger ci
 workflows:
   version: 2
