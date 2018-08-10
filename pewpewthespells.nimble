@@ -24,14 +24,14 @@ else:
   foreignDep "openssl"
 
 task clean, "clean up from build":
-  rmFile("rite")   ## executable
-  rmFile("ritual") ## executable
-  rmDir("report/") ## test results directory
+  rmFile("rite")   #[ executable ]#
+  rmFile("ritual") #[ executable ]# 
+  rmDir("report/") #[ test results directory ]#
   withDir "src/":
     rmDir("nimcache/")
   withDir "tests/":
     rmDir("nimcache/")
-    rmFile("t_rite") # executable
+    rmFile("t_rite") #[ executable ]#
 
 task config, "install necessary configuration files":
   echo "Please run the following commands:"
