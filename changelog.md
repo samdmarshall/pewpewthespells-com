@@ -1,5 +1,8 @@
 # Changelog
 
+## [2019-02-18]
+- Updating CV and removing twitter link from home 
+
 ## [2018-03-31]
 - Adding redirect for Trans Day of Visibility
 

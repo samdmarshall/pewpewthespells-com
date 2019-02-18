@@ -35,7 +35,7 @@ output = ".html"
 command = "pandoc --from markdown+grid_tables --to html5 --include-in-header=%self%/header.html --highlight-style=pygments --email-obfuscation=references \"%input%\" --output \"%output%\" --template=%self%/html.template"
 ```
 
-There are a couple of special strings that can be used to substitute into the `rule.cmd` string:
+There are a couple of special strings that can be used to substitute into the `rule.command` string:
 
 * `%input%`, this is the path to the input file
 * `%output%`, this is the path to the output file
@@ -51,9 +51,12 @@ All content is served by `ritual`. To start serving the website content, run `./
 
 ## Additional Tools
 
+### nginx
 While all content can be served directly by `ritual` using the Jester framework, it doesn't offer many of the common features of web-servers (such as logging and certificates). To do these things, I am running `nginx` as a reverse proxy to the `ritual` Jester application. This is to enhance the security and provice a more common interface for things like LetsEncrypt.
 
 I have included a copy of my `nginx` configuration file for reference to demonstrate how this works.
 
+### linkcheck
+To validate that all of the links on my website are working and pointed at valid locations; i wrote a small tool to check that for me [linkcheck](https://github.com/samdmarshall/linkcheck). This software is also written in nim, and should just require a `nimble build` to build it once cloned locally. It takes a single parameter of a http server address to check, eg: `./linkcheck "http://localhost:5000/" 
 
 

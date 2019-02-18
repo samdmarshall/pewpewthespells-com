@@ -1,4 +1,4 @@
-version = "0.2"
+version = "0.2.1"
 author = "Samantha Demi"
 description = "pewpewthespells.com website stack"
 license = "BSD 3-Clause"
@@ -7,8 +7,8 @@ bin = @["ritual", "rite"]
 srcDir = "src/"
 skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim", "familiar.nim"]
 
-requires "jester 0.2.0"
-requires "parsetoml 0.3.2"
+requires "jester >= 0.2.0"
+requires "parsetoml >= 0.3.2"
 
 #[ -------------------------------------- ]#
 #[               Build Tasks              ]#
