@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nimlang/nim:0.18.0-alpine
+      - image: nimlang/nim:alpine
     steps:
       - checkout
       - run: apk update
@@ -12,7 +12,7 @@ jobs:
       - run: nimble build --accept
   test:
     docker:
-      - image: nimlang/nim:0.18.0-alpine
+      - image: nimlang/nim:alpine
     steps:
       - checkout
       - run: apk update

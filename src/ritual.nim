@@ -54,9 +54,16 @@ routes:
   get re"^\/.*":
     if transDayOfVisibility():
       redirect("https://wewantto.live")
-    if wantsPlainTextContent(request):
-      let plain_content = getPlainTextForRequest(request, sitemap.exportDir())
-      resp(plain_content, "text/plain")
-    pass() # pass directly onto the static hosted content
+    if request.path == "/":
+      redirect("/index.html")
+    else:
+      var file = request.path 
+      if wantsPlainTextContent(request):
+        file = request.path.changeFileExt("txt")
+      let requested_path = website_root & file
+      if existsFile(requested_path):
+        sendFile(requested_path)
+      else:
+        resp Http404
 
 runForever()

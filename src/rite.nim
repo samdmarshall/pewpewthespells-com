@@ -13,6 +13,7 @@ import "incantation.nim"
 const RuleInputFileTag = "%input%"
 const RuleOutputFileTag = "%output%"
 const RuleSelfDirTag = "%self%"
+const DefaultPermissions = {fpUserRead, fpUserWrite, fpGroupRead, fpGroupWrite, fpOthersRead, fpOthersWrite}
 
 # =========
 # Functions
@@ -56,18 +57,21 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
             command_template = command_template.replace(RuleSelfDirTag, sitemap.sitemapRoot())
             echo "Generating '" & output_export_path & "'..."
             exit_code = execShellCmd(command_template)
+#            export_path_ext.setFilePermissions(DefaultPermissions)
           else:
             echo "Skipping '" & output_export_path & "'..."
       else:
         if isStale(path, export_path):
           echo "Copying '" & relative_path & "'..."
           copyFile(path, export_path)
+#          export_path.setFilePermissions(DefaultPermissions)
         else:
           echo "Skipping '" & relative_path & "'..."
     of pcDir:
       if not dirExists(export_path):
         echo "Creating '" & relative_path & "/'..."
         createDir(export_path)
+#        export_path.setFilePermissions(DefaultPermissions)
       processDirectory(sitemap, path)
     else:
       discard

@@ -6,7 +6,7 @@ nimcache/
 node_modules/
 report/
 yarn-*.log
-
+html2pdf*.html
 # binaries
 rite
 ritual

@@ -31,7 +31,7 @@ task clean, "clean up from build":
     rmDir("nimcache/")
   withDir "tests/":
     rmDir("nimcache/")
-    rmFile("t_rite") #[ executable ]#
+    rmFile("t_rite") #[ executable ]#      
 
 task config, "install necessary configuration files":
   echo "Please run the following commands:"
