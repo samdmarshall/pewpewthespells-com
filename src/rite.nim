@@ -6,6 +6,8 @@ import sequtils
 import strutils
 
 import "incantation.nim"
+import "feed.nim"
+import "familiar.nim"
 
 # ================
 # global constants
@@ -13,13 +15,14 @@ import "incantation.nim"
 const RuleInputFileTag = "%input%"
 const RuleOutputFileTag = "%output%"
 const RuleSelfDirTag = "%self%"
-const DefaultPermissions = {fpUserRead, fpUserWrite, fpGroupRead, fpGroupWrite, fpOthersRead, fpOthersWrite}
+const DefaultPermissions = {fpUserRead, fpUserWrite, fpGroupRead,
+    fpOthersRead}
 
 # =========
 # Functions
 # =========
 
-proc filterRules(rules: seq[Rule], ext: string): seq[Rule] = 
+proc filterRules(rules: seq[Rule], ext: string): seq[Rule] =
   var applicable_rules = newSeq[Rule]()
   for rule in rules:
     if rule.input == ext:
@@ -57,21 +60,21 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
             command_template = command_template.replace(RuleSelfDirTag, sitemap.sitemapRoot())
             echo "Generating '" & output_export_path & "'..."
             exit_code = execShellCmd(command_template)
-#            export_path_ext.setFilePermissions(DefaultPermissions)
+            export_path_ext.setFilePermissions(DefaultPermissions)
           else:
             echo "Skipping '" & output_export_path & "'..."
       else:
         if isStale(path, export_path):
           echo "Copying '" & relative_path & "'..."
           copyFile(path, export_path)
-#          export_path.setFilePermissions(DefaultPermissions)
+          export_path.setFilePermissions(DefaultPermissions)
         else:
           echo "Skipping '" & relative_path & "'..."
     of pcDir:
       if not dirExists(export_path):
         echo "Creating '" & relative_path & "/'..."
         createDir(export_path)
-#        export_path.setFilePermissions(DefaultPermissions)
+        export_path.setFilePermissions(DefaultPermissions)
       processDirectory(sitemap, path)
     else:
       discard
@@ -86,6 +89,19 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
 when isMainModule:
   let sitemap_file_path = getSitemapFile()
   let sitemap = initSite(sitemap_file_path)
-  echo "Exporting to: " & sitemap.exportDir()
-  createDir(sitemap.exportDir())
+  let website_root = sitemap.exportDir()
+  echo "Exporting to: " & website_root
+
+  createDir(website_root)
+
+  let feed_items = rssFeedContents(sitemap.getRssFeedDir())
+  let feed_contents = generateRssFeedXml(sitemap.base_url, website_root, feed_items)
+
+  block:
+    let rss_feed_path = website_root / "feed.xml"
+    let file = open(rss_feed_path, fmReadWrite)
+    file.write(feed_contents)
+    file.close()
+    rss_feed_path.setFilePermissions(DefaultPermissions)
+
   processDirectory(sitemap, sitemap.getRoot())

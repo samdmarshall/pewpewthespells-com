@@ -14,7 +14,6 @@ import jester
 import parsetoml
 
 import "incantation.nim"
-import "feed.nim"
 import "familiar.nim"
 
 # =========
@@ -30,12 +29,9 @@ proc transDayOfVisibility(): bool =
 # =============
 
 settings:
-  appName = "pewpewthespells-com"
   staticDir = initSite(getSitemapFile()).exportDir()
 
 routes:
-  get "/feed.xml":
-    sendfile(getTempDir() / "ritual.rss")
   get re"^\/.*":
     if transDayOfVisibility():
       redirect("https://wewantto.live")
@@ -59,11 +55,6 @@ when isMainModule:
   let sitemap = initSite(getSitemapFile())
   let website_root = sitemap.exportDir()
   if website_root.existsDir():
-    let feed_items = rssFeedContents(sitemap.getRssFeedDir())
-    let feed_contents = generateRssFeedXml(sitemap.base_url, website_root,
-        feed_items)
-    let feed_file_path = getTempDir() / "ritual.rss"
-    feed_file_path.writeFile(feed_contents)
     runForever()
   else:
     quit(QuitFailure)
