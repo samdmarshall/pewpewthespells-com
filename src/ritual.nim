@@ -35,8 +35,8 @@ routes:
   get re"^\/.*":
     if transDayOfVisibility():
       redirect("https://wewantto.live")
-    if request.path == "/":
-      redirect("/index.html")
+    if request.path.endsWith("/"):
+      redirect(request.path & "index.html")
     else:
       var file = request.path
       if wantsPlainTextContent(request):
