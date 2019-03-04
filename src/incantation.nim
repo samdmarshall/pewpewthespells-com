@@ -52,7 +52,8 @@ proc rules*(sitemap: SiteMap): seq[Rule] =
   var rules = newSeq[Rule]()
   for current_rule in defined_rules:
     let value = current_rule.tableVal
-    let rule = Rule(input: value["input"].getStr(), output: value["output"].getStr(), command: value["command"].getStr())
+    let rule = Rule(input: value["input"].getStr(),
+        output: value["output"].getStr(), command: value["command"].getStr())
     rules.add(rule)
   return rules
 
@@ -67,7 +68,8 @@ proc baseUrl*(sitemap: SiteMap): string =
   return sitemap.data["export"]["base_url"].getStr()
 
 proc getRoot*(sitemap: SiteMap): string =
-  return sitemap.sitemapRoot().joinPath(sitemap.data["root"]["directory"].getStr())
+  return sitemap.sitemapRoot().joinPath(sitemap.data["root"][
+      "directory"].getStr())
 
 proc getRssFeedDir*(sitemap: SiteMap): string =
   return sitemap.exportDir().joinPath(sitemap.data["export"]["rss"].getStr())
