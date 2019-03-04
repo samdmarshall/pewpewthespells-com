@@ -17,7 +17,6 @@ import "incantation.nim"
 import "feed.nim"
 import "familiar.nim"
 
-
 # =========
 # Functions
 # =========
@@ -26,36 +25,17 @@ proc transDayOfVisibility(): bool =
   let today = now()
   return (today.month == mMar and today.monthday == 31)
 
-proc getSitemap(): SiteMap =
-  let path = getSitemapFile()
-  return initSite(path)
-
-proc rssFeed(req: Request): string =
-  let sitemap = getSitemap()
-  let feed_items = rssFeedContents(sitemap.getRssFeedDir())
-  let feed_contents = generateRssFeedXml(sitemap.base_url,
-      req.getStaticDir(),
-      feed_items)
-  return feed_contents
-
-proc checkInit(): bool =
-  let website_root = getSitemap().exportDir()
-  return website_root.existsDir()
-
 # =============
 # Configuration
 # =============
 
 settings:
+  appName = "pewpewthespells-com"
   staticDir = initSite(getSitemapFile()).exportDir()
 
 routes:
-#  get "/feed.xml":
-#    resp rssFeed(request)
-  get "/keybase.txt":
-    pass()
-  get "/.well_known/keybase.txt":
-    pass()
+  get "/feed.xml":
+    sendfile(getTempDir() / "ritual.rss")
   get re"^\/.*":
     if transDayOfVisibility():
       redirect("https://wewantto.live")
@@ -76,6 +56,14 @@ routes:
 # ===========
 
 when isMainModule:
-  if checkInit():
+  let sitemap = initSite(getSitemapFile())
+  let website_root = sitemap.exportDir()
+  if website_root.existsDir():
+    let feed_items = rssFeedContents(sitemap.getRssFeedDir())
+    let feed_contents = generateRssFeedXml(sitemap.base_url, website_root,
+        feed_items)
+    let feed_file_path = getTempDir() / "ritual.rss"
+    feed_file_path.writeFile(feed_contents)
     runForever()
-  quit(QuitFailure)
+  else:
+    quit(QuitFailure)
