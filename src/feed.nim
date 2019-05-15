@@ -21,7 +21,7 @@ proc rssFeedContents*(root: string): seq[string] =
   for kind, path in walkDir(root):
     case kind
     of pcFile:
-      if path.endsWith(".html"):
+      if path.endsWith(".html") and (not path.endsWith("index.html")):
         let meta_tags = loadHtml(path).findAll("meta").filter(proc (tag:XmlNode): bool = tag.attrs.hasKey("name") and tag.attrs["name"] == "published")
         if len(meta_tags) > 0:
           items.add(path)

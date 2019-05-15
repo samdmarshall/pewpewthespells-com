@@ -7,7 +7,7 @@ let stream = newFileStream("t_incantation-junit.xml", fmWrite)
 let junit = newJUnitOutputFormatter(stream)
 addOutputFormatter(junit)
 
-let config = initSite("assets/sitemap.toml")
+let config = initSite("tests/assets/sitemap.toml")
 
 suite "incantation tests":
   test "rules init":
@@ -30,7 +30,7 @@ suite "incantation tests":
     check(config.baseUrl() == "https://pewpewthespells.com/")
 
   test "root directory":
-    check(config.getRoot() == "assets/../../content/site/")
+    check(config.getRoot() == "tests/assets/../../content/site/")
 
   test "export directory":
     check(config.exportDir() == "/var/www/pewpewthespells.com/public_html/")

@@ -1,55 +1,65 @@
-version = "0.2.1"
-author = "Samantha Demi"
-description = "pewpewthespells.com website stack"
-license = "BSD 3-Clause"
+import strutils
+import ospaths
+import distros
 
-bin = @["ritual", "rite"]
-srcDir = "src/"
-skipFiles = @["feed.nim", "incantation.nim", "ritual.nim", "rite.nim", "familiar.nim"]
+packageName = "pewpewthespells"
+version     = "0.2.1"
+author      = "Samantha Demi"
+description = "pewpewthespells.com website stack"
+license     = "BSD 3-Clause"
+
+bin      = @["ritual", "rite"]
+binDir   = "build/"
+
+srcDir   = "src/"
+
+skipDirs = @["tests/"]
+
+#[ -------------------------------------- ]#
+#[              Dependencies              ]#
+#[ -------------------------------------- ]#
 
 requires "jester >= 0.2.0"
 requires "parsetoml >= 0.3.2"
+
+
+foreignDep "openssl"
+foreignDep "nginx"
+foreignDep "node"
+foreignDep "yarn"
 
 #[ -------------------------------------- ]#
 #[               Build Tasks              ]#
 #[ -------------------------------------- ]#
 
-import strutils
-import ospaths
-import distros
-
-if detectOs(Ubuntu):
-  foreignDep "libssl-dev"
-else:
-  foreignDep "openssl"
+task danger, "run danger on the repo":
+  let (_, code) = gorgeEx "yarn --silent check"
+  if code != 0:
+    exec "yarn install"
+  exec "yarn exec danger local --verbose"
 
 task clean, "clean up from build":
-  rmFile("rite")   #[ executable ]#
-  rmFile("ritual") #[ executable ]# 
-  rmDir("report/") #[ test results directory ]#
-  withDir "src/":
-    rmDir("nimcache/")
-  withDir "tests/":
-    rmDir("nimcache/")
-    rmFile("t_rite") #[ executable ]#      
+  rmDir "build"
+  rmDir "report"
+  withDir "tests":
+    rmFile "t_feed"
+    rmFile "t_familiar"
+    rmFile "t_incantation"
 
-task config, "install necessary configuration files":
+after install:
   echo "Please run the following commands:"
-  echo "  sudo cp "&thisDir()&"/configuration/lib/systemd/service/ritual.service /lib/systemd/system/"
-  echo "  sudo cp "&thisDir()&"/configuration/etc/init/ritual.conf /etc/init/"
-  echo "  sudo cp "&thisDir()&"/configuration/etc/nginx/nginx.conf /etc/nginx/"
+  echo "  sudo cp " & thisDir() / "/configuration/lib/systemd/service/ritual.service /lib/systemd/system/"
+  echo "  sudo cp " & thisDir() / "/configuration/etc/init/ritual.conf /etc/init/"
+  echo "  sudo cp " & thisDir() / "/configuration/etc/nginx/nginx.conf /etc/nginx/"
 
-task unconfig, "removes the configuration files":
+after uninstall:
   echo "Please run the following commands:"
   echo "  sudo rm /lib/systemd/system/ritual.service /etc/init/ritual.conf /etc/nginx/nginx.conf"
 
-task test, "run unit tests":
-  withDir "tests":
-    for file in listFiles("."):
-      if endsWith(file, ".nim"):
-        exec "nim c -r " & file
-  mkDir("report/")
-  for file in listFiles("tests/"):
+after test:
+  mkDir"report"
+  for file in listFiles("."):
     if endsWith(file, "-junit.xml"):
-      let path = joinPath("report/", extractFilename(file))
-      mvFile(file, path)
+      var filename = extractFilename(file)
+      echo "Moving test results file '" & filename & "' -> report/ "
+      mvFile file, "report" / filename

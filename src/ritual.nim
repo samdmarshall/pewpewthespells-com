@@ -4,6 +4,7 @@
 
 import os
 import re
+import net
 import times
 import ospaths
 import sequtils
@@ -11,7 +12,6 @@ import strutils
 import asyncdispatch
 
 import jester
-import parsetoml
 
 import "incantation.nim"
 import "familiar.nim"
@@ -22,39 +22,74 @@ import "familiar.nim"
 
 proc transDayOfVisibility(): bool =
   let today = now()
-  return (today.month == mMar and today.monthday == 31)
+  result = (today.month == mMar and today.monthday == 31)
 
-# =============
-# Configuration
-# =============
+# ====================
+# Supplimental Routers
+# ====================
 
-settings:
-  staticDir = initSite(getSitemapFile()).exportDir()
+# Router to provide the corresponding "index.html" as page contents for directory urls
+router indexPage:
+  get "/":
+    sendFile request.settings.staticDir / request.path / "index.html"
 
-routes:
-  get re"^\/.*":
+# Router for calling out the keybase.txt file locations
+router keybase:
+  get "/keybase.txt":
+    sendFile request.settings.staticDir / request.path
+
+# ==============
+# Primary Router
+# ==============
+
+# Router that contains all others
+router pewpewthespells:
+
+  #[ === Keybase Proofs === ]#
+  extend keybase, ""             # https://pewpewthespells.com
+  extend keybase, "/.well-known" # http://pewpewthespells.com
+
+  #[ === Pre-request Hook === ]#
+  before:
     if transDayOfVisibility():
-      redirect("https://wewantto.live")
-    if request.path.endsWith("/"):
-      redirect(request.path & "index.html")
-    else:
-      var file = request.path
+      redirect "https://wewantto.live"
+
+  #[ === Provide Directories as pages === ]#
+  extend indexPage, ""
+  extend indexPage, "/blog"
+  extend indexPage, "/conf"
+
+  #[ === Legacy Pages === ]#
+  get "/ramble.html": redirect "/blog/"
+  get "/confs.html":  redirect "/conf/"
+
+  #[ === Catch-All === ]#
+  get re".*\.html$":
+    let origin = parseIpAddress(request.ip)
+    let userAgent = request.headers
+    let meth = request.reqMethod
+
+    let original_file = request.path
+    var requested_file =
       if wantsPlainTextContent(request):
-        file = request.path.changeFileExt("txt")
-      let requested_path = request.getStaticDir() & file
-      if existsFile(requested_path):
-        sendFile(requested_path)
+        original_file.changeFileExt("txt")
       else:
-        resp Http404
+        original_file
+
+    if existsFile(requested_file):
+      sendFile request.settings.staticDir / requested_file
+    elif existsFile(original_file):
+      sendFile request.settings.staticDir / original_file
+    else:
+      resp Http404
 
 # ===========
 # Entry Point
 # ===========
 
 when isMainModule:
-  let sitemap = initSite(getSitemapFile())
-  let website_root = sitemap.exportDir()
-  if website_root.existsDir():
-    runForever()
-  else:
-    quit(QuitFailure)
+  let path = getSitemapFile()
+  let sitemap = initSite(path)
+  let config = newSettings(staticDir = sitemap.exportDir())
+  var website = initJester(pewpewthespells, settings=config)
+  website.serve()

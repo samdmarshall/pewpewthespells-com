@@ -10,6 +10,21 @@ const PlaintextUserAgents = @[
    "python-requests"
 ]
 
+# =====
+# Types
+# =====
+
+type
+  PageContent* = enum
+    pcNone,
+    pcDefault,
+    pcPlainText,
+    pcPDF,
+
+# =========
+# Functions
+# =========
+
 proc wantsPlainTextContent*(request: Request): bool =
   let wants_plaintext = 
     if request.headers.hasKey("Accept"):
