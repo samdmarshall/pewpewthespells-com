@@ -43,7 +43,7 @@ proc event(name: string, sdate, edate: DateTime): string =
 
 proc getCertificateExpiryCalendar*(): string =
   let cert_path =
-    if getHostname() == "Linode": "/etc" / "letsencrypt" / "live" / "pewpewthespells.com-0001" / "fullchain.pem"
+    if getHostname().startsWith("Linode"): "/etc" / "letsencrypt" / "live" / "pewpewthespells.com-0001" / "fullchain.pem"
     else: "/home" / "demi" / "Desktop" / "pewpewthespells.com-0001" / "fullchain.pem"
 
   var body = newSeq[string]()
@@ -65,12 +65,12 @@ proc getCertificateExpiryCalendar*(): string =
       var datestr = pair[1]
       if datestr.endsWith(" GMT"):
         datestr.delete(datestr.len - 3, datestr.len)
-      startDate = parse(datestr, "MMM dd HH:mm:ss yyyy", utc())
+      startDate = parse(datestr, "MMM d HH:mm:ss yyyy", utc())
     of "notAfter":
       var datestr = pair[1]
       if datestr.endsWith(" GMT"):
         datestr.delete(datestr.len - 3, datestr.len)
-      endDate = parse(datestr, "MMM dd HH:mm:ss yyyy", utc())
+      endDate = parse(datestr, "MMM d HH:mm:ss yyyy", utc())
     else:
       discard
 
