@@ -38,6 +38,13 @@ router keybase:
   get "/keybase.txt":
     sendFile request.settings.staticDir / request.path
 
+# Router for subscription-based addresses (RSS Feeds and iCalendar files)
+router subscriptions:
+  get "/feed.xml":
+    sendFile request.settings.staticDir / request.path
+  get "/calendar.ics":
+    sendFile request.settings.staticDir / request.path
+
 # ==============
 # Primary Router
 # ==============
@@ -48,6 +55,9 @@ router pewpewthespells:
   #[ === Keybase Proofs === ]#
   extend keybase, ""             # https://pewpewthespells.com
   extend keybase, "/.well-known" # http://pewpewthespells.com
+
+  #[ === Subscriptions === ]#
+  extend subscriptions, ""
 
   #[ === Pre-request Hook === ]#
   before:
