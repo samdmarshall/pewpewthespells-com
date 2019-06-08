@@ -1,5 +1,10 @@
 # Changelog
 
+## [2019-06-08]
+- Adding SSL Certificate Expiry calendar functionality, so i stop forgetting to re-new the HTTPS cert.
+- Major overhaul to routing behavior, everything is clearly defined now.
+- Added functionality to `rite` to allow adhoc disabling of processing rules as well as re-generation of the rss feed xml file and certificate expiry ics file when run. 
+
 ## [2019-02-18]
 - Updating CV and removing twitter link from home 
 

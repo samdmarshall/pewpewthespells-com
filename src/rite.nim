@@ -2,12 +2,14 @@
 # imports
 # =======
 import os
+import parseopt
 import sequtils
 import strutils
 
-import "incantation.nim"
 import "feed.nim"
+import "calendar.nim"
 import "familiar.nim"
+import "incantation.nim"
 
 # ================
 # global constants
@@ -15,8 +17,7 @@ import "familiar.nim"
 const RuleInputFileTag = "%input%"
 const RuleOutputFileTag = "%output%"
 const RuleSelfDirTag = "%self%"
-const DefaultPermissions = {fpUserRead, fpUserWrite, fpGroupRead,
-    fpOthersRead}
+const DefaultPermissions = {fpUserRead, fpUserWrite, fpGroupRead, fpOthersRead}
 
 # =========
 # Functions
@@ -25,7 +26,7 @@ const DefaultPermissions = {fpUserRead, fpUserWrite, fpGroupRead,
 proc filterRules(rules: seq[Rule], ext: string): seq[Rule] =
   var applicable_rules = newSeq[Rule]()
   for rule in rules:
-    if rule.input == ext:
+    if rule.input == ext and rule.status:
       applicable_rules.add(rule)
   return applicable_rules
 
@@ -36,8 +37,8 @@ proc isStale(input_path: string, output_path: string): bool =
   let is_up_to_date = output_path.fileNewer(input_path)
   return not (is_exported and is_up_to_date)
 
-proc processDirectory(sitemap: SiteMap, dir_path: string) =
-  var all_rules = sitemap.rules()
+proc processDirectory(sitemap: SiteMap, dir_path: string, disabled_rules: seq[string]) =
+  var all_rules = sitemap.rules(disabled_rules)
   for kind, path in walkDir(dir_path):
     var exit_code = 0
     let (_, _, ext) = path.splitFile()
@@ -75,7 +76,7 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
         echo "Creating '" & relative_path & "/'..."
         createDir(export_path)
         export_path.setFilePermissions(DefaultPermissions)
-      processDirectory(sitemap, path)
+      processDirectory(sitemap, path, disabled_rules)
     else:
       discard
     if exit_code != 0:
@@ -87,6 +88,7 @@ proc processDirectory(sitemap: SiteMap, dir_path: string) =
 # ===========================================
 
 when isMainModule:
+
   let sitemap_file_path = getSitemapFile()
   let sitemap = initSite(sitemap_file_path)
   let website_root = sitemap.exportDir()
@@ -94,14 +96,51 @@ when isMainModule:
 
   createDir(website_root)
 
-  let feed_items = rssFeedContents(sitemap.getRssFeedDir())
-  let feed_contents = generateRssFeedXml(sitemap.base_url, website_root, feed_items)
+  var disabled_rules = newSeq[string]()
+  var disable_rss_feed = false
+  var disable_certificate_ics = false
 
-  block:
+  var rule_names = newSeq[string]()
+  for rule in sitemap.rules():
+    rule_names.add "$#2$#" % [rule.input.strip(true, false, {'.'}), rule.output.strip(true, false, {'.'})]
+
+  var parser = initOptParser()
+  for kind, key, value in parser.getopt():
+    case kind
+    of cmdArgument: discard
+    of cmdLongOption, cmdShortOption:
+      case key
+      of "disable":
+        case value
+        of "rss-feed":
+          disable_rss_feed = true
+        of "certificate-ics":
+          disable_certificate_ics = true
+        else: discard
+      of "disable-rule":
+        if value in rule_names:
+          disabled_rules.add value
+    else: discard
+
+  block RssFeed:
+    if disable_rss_feed: break
+    let feed_items = rssFeedContents(sitemap.getRssFeedDir())
+    let feed_contents = generateRssFeedXml(sitemap.base_url, website_root, feed_items)
     let rss_feed_path = website_root / "feed.xml"
+    echo "Creating '$#'..." % [rss_feed_path]
     let file = open(rss_feed_path, fmReadWrite)
     file.write(feed_contents)
     file.close()
     rss_feed_path.setFilePermissions(DefaultPermissions)
 
-  processDirectory(sitemap, sitemap.getRoot())
+  block CertificateCalendar:
+    if disable_certificate_ics: break
+    let calendar_contents = getCertificateExpiryCalendar()
+    let certificate_calendar_path = website_root / "calendar.ics"
+    echo "Creating '$#'..." % [certificate_calendar_path]
+    let file = open(certificate_calendar_path, fmReadWrite)
+    file.write(calendar_contents)
+    file.close()
+    certificate_calendar_path.setFilePermissions(DefaultPermissions)
+
+  processDirectory(sitemap, sitemap.getRoot(), disabled_rules)

@@ -27,16 +27,13 @@ type
 
 proc wantsPlainTextContent*(request: Request): bool =
   let wants_plaintext = 
-    if request.headers.hasKey("Accept"):
-      request.headers["Accept"] == "text/plain"
-    else:
-      false
+    if request.headers.hasKey("Accept"): (request.headers["Accept"] == "text/plain")
+    else: false
   var is_plaintext_agent = false
   for match in PlainTextUserAgents:
     is_plaintext_agent = request.headers["User-Agent"].toLower().contains(match)
-    if is_plaintext_agent:
-      break
-  return (wants_plaintext or is_plaintext_agent) and (request.path.endsWith("/") or request.path.endsWith(".html"))
+    if is_plaintext_agent: break
+  result = (wants_plaintext or is_plaintext_agent) and (request.path.endsWith("/") or request.path.endsWith(".html"))
 
 
 proc getPlainTextForRequest*(request: Request, base_path: string): string =

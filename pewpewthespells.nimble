@@ -3,7 +3,7 @@ import ospaths
 import distros
 
 packageName = "pewpewthespells"
-version     = "0.2.1"
+version     = "0.2.2"
 author      = "Samantha Demi"
 description = "pewpewthespells.com website stack"
 license     = "BSD 3-Clause"
@@ -21,7 +21,7 @@ skipDirs = @["tests/"]
 
 requires "jester >= 0.2.0"
 requires "parsetoml >= 0.3.2"
-
+requires "uuids >= 0.1.10"
 
 foreignDep "openssl"
 foreignDep "nginx"
