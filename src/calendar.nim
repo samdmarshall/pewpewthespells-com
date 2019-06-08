@@ -62,15 +62,15 @@ proc getCertificateExpiryCalendar*(): string =
     of "subject":
       subject = pair[1]
     of "notBefore":
-      var datestr = pair[1]
-      if datestr.endsWith(" GMT"):
-        datestr.delete(datestr.len - 3, datestr.len)
-      startDate = parse(datestr, "MMM d HH:mm:ss yyyy", utc())
+      if pair[1][4] == ' ':
+        startDate = parse(pair[1], "MMM  d HH:mm:ss yyyy 'GMT'", utc())
+      else:
+        startDate = parse(pair[1], "MMM d HH:mm:ss yyyy 'GMT'", utc())
     of "notAfter":
-      var datestr = pair[1]
-      if datestr.endsWith(" GMT"):
-        datestr.delete(datestr.len - 3, datestr.len)
-      endDate = parse(datestr, "MMM d HH:mm:ss yyyy", utc())
+      if pair[1][4] == ' ':
+        endDate = parse(pair[1], "MMM  d HH:mm:ss yyyy 'GMT'", utc())
+      else:
+        endDate = parse(pair[1], "MMM d HH:mm:ss yyyy 'GMT'", utc())
     else:
       discard
 
