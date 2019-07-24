@@ -79,7 +79,7 @@ router pewpewthespells:
     let userAgent = request.headers
     let meth = request.reqMethod
 
-    let original_file = request.path
+    let original_file = request.settings.staticDir / request.path
     var requested_file =
       if wantsPlainTextContent(request):
         original_file.changeFileExt("txt")
@@ -87,9 +87,9 @@ router pewpewthespells:
         original_file
 
     if existsFile(requested_file):
-      sendFile request.settings.staticDir / requested_file
+      sendFile requested_file
     elif existsFile(original_file):
-      sendFile request.settings.staticDir / original_file
+      sendFile original_file
     else:
       resp Http404
 
