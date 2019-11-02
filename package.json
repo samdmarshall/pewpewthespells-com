@@ -6,7 +6,7 @@
 				"babel-preset-env": "^1.6.1",
 				"danger": "^3.2.0",
 				"danger-plugin-spellcheck": "^1.2.2",
-				"lodash": "^4.17.5",
+				"lodash": "^4.17.13",
 				"lodash.includes": "^4.3.0",
 				"typescript": "^2.8.3"
 		}
