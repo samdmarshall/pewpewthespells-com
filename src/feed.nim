@@ -39,8 +39,8 @@ proc postDateCompare(a: string, b: string): int =
   if a_tags.len == 0 or b_tags.len == 0:
     quit(QuitFailure)
 
-  let a_date = a_tags[0].attrs["content"].parse("yyyy-MM-dd").timeInfoToTime()
-  let b_date = b_tags[0].attrs["content"].parse("yyyy-MM-dd").timeInfoToTime()
+  let a_date = a_tags[0].attrs["content"].parse("yyyy-MM-dd").toTime()
+  let b_date = b_tags[0].attrs["content"].parse("yyyy-MM-dd").toTime()
   
   if a_date == b_date:
     return 0
