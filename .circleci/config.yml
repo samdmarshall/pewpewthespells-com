@@ -26,10 +26,9 @@ jobs:
           path: report/
   danger:
     docker:
-      - image: node:8
+      - image: node:13
     steps:
       - checkout
-      - run: npm install -g yarn
       - run: yarn install
       - run: yarn danger ci
 workflows:

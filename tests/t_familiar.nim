@@ -7,8 +7,11 @@ let stream = newFileStream("t_familiar-junit.xml", fmWrite)
 let junit = newJUnitOutputFormatter(stream)
 addOutputFormatter(junit)
 
-suite "familiar tests":
-  test "":
+suite "familiar":
+  test "plain text requested by header":
+    assert(true)
+
+  test "plain text requested by user-agent":
     assert(true)
 
 stream.flush()

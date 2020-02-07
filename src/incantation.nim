@@ -1,8 +1,6 @@
 import os
-import streams
 import parseopt
 import strutils
-import strformat
 
 # imports from third party libraries
 import parsetoml
@@ -19,6 +17,8 @@ type
     input*: string
     output*: string
     command*: string
+
+  LoadError* = object of Exception
 
 proc validate*(sitemap: SiteMap): bool =
   if not sitemap.data.hasKey("root"):
@@ -39,19 +39,24 @@ proc validate*(sitemap: SiteMap): bool =
 proc sitemapRoot*(sitemap: SiteMap): string =
   return sitemap.path.parentDir()
 
-proc initSite*(path: string): SiteMap =
-  if path.fileExists():
+proc initSite*(path: string): SiteMap {.raises: [OSError, IOError, Defect, TomlError, KeyError, Exception].} =
+  if not path.fileExists():
+    raise newException(OSError, "File path does not exist!")
+  {.gcsafe.}:
     let table = parsefile(path)
     let map = SiteMap(data: table, path: path)
-    if map.validate():
-      return map
-  echo "Unable to load sitemap file!"
-  quit(QuitFailure)
+    let is_valid = map.validate()
+    if not is_valid:
+      raise newException(IOError, "Unable to parse contents of sitemap file!")
+    return map
 
 proc rules*(sitemap: SiteMap, disabled: seq[string] = @[]): seq[Rule] =
-  var defined_rules = sitemap.data["rules"].arrayVal
   var rules = newSeq[Rule]()
+  var rule_data = sitemap.data["rules"]
+  assert(rule_data.kind == TomlValueKind.Array)
+  var defined_rules = rule_data.arrayVal
   for current_rule in defined_rules:
+    assert(current_rule.kind == TomlValueKind.Table)
     let value = current_rule.tableVal
     let name = "$#2$#" % [value["input"].getStr().strip(true, false, {'.'}), value["output"].getStr().strip(true, false, {'.'})]
     let enabled = name notin disabled

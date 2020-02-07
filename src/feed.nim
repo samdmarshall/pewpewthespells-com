@@ -11,6 +11,10 @@ import strutils
 import algorithm
 import htmlparser
 
+
+type
+  ParseError* = object of Exception
+
 # =========
 # Functions
 # =========
@@ -37,11 +41,11 @@ proc postDateCompare(a: string, b: string): int =
   if b_tags.len == 0:
     echo "publication date of '" & b & "' is missing!"
   if a_tags.len == 0 or b_tags.len == 0:
-    quit(QuitFailure)
+    raise newException(ParseError, "Both entries are missing the publication date field!")
 
   let a_date = a_tags[0].attrs["content"].parse("yyyy-MM-dd").toTime()
   let b_date = b_tags[0].attrs["content"].parse("yyyy-MM-dd").toTime()
-  
+
   if a_date == b_date:
     return 0
   if a_date > b_date:
@@ -65,17 +69,17 @@ proc generateRssFeedXml*(base_url: string, export_dir: string, posts: seq[string
   for post in items:
     let post_data = loadHtml(post)
     let post_metadata = post_data.findAll("meta")
-    
+
     let found_titles = post_data.findAll("title")
     if found_titles.len == 0:
-      echo "unable to locate a '<title>' tag for '" & post & "'!"
-      quit(QuitFailure)
+      raise newException(ParseError, "unable to locate a '<title>' tag for '" & post & "'!")
+
     let title_text = found_titles[0].innerText
 
     let found_descriptions = post_metadata.filter(proc (tag: XmlNode): bool = tag.attrs.hasKey("name") and tag.attrs["name"] == "summary")
     if found_descriptions.len == 0:
-      echo "unable to locate a summary metadata tag for '" & post & "'!"
-      quit(QuitFailure)
+      raise newException(ParseError, "unable to locate a summary metadata tag for '" & post & "'!")
+
     let description_text = found_descriptions[0].attrs["content"]
 
     var title = <>title(newText(title_text))
@@ -89,7 +93,7 @@ proc generateRssFeedXml*(base_url: string, export_dir: string, posts: seq[string
     entry.add(link)
 
     channel.add(entry)
-    
+
   return xmlHeader & $feed_xml
 
 #[

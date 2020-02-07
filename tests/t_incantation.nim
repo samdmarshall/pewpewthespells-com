@@ -30,7 +30,7 @@ suite "incantation tests":
     check(config.baseUrl() == "https://pewpewthespells.com/")
 
   test "root directory":
-    check(config.getRoot() == "tests/assets/../../content/site/")
+    check(config.getRoot() == "content/site")
 
   test "export directory":
     check(config.exportDir() == "/var/www/pewpewthespells.com/public_html/")
