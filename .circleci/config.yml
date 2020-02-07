@@ -29,7 +29,6 @@ jobs:
       - image: node:8
     steps:
       - checkout
-      - run: npm install -g yarn
       - run: yarn install
       - run: yarn danger ci
 workflows:
