@@ -1,6 +1,6 @@
 import strutils
 import strtabs
-import ospaths
+import os
 import jester
 
 const PlaintextUserAgents = @[
@@ -26,7 +26,7 @@ type
 # =========
 
 proc wantsPlainTextContent*(request: Request): bool =
-  let wants_plaintext = 
+  let wants_plaintext =
     if request.headers.hasKey("Accept"): (request.headers["Accept"] == "text/plain")
     else: false
   var is_plaintext_agent = false

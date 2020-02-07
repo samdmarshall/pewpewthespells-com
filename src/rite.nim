@@ -80,8 +80,7 @@ proc processDirectory(sitemap: SiteMap, dir_path: string, disabled_rules: seq[st
     else:
       discard
     if exit_code != 0:
-      echo "Error in processing '" & relative_path & "', aborting..."
-      quit(QuitFailure)
+      raise newException(OSError, "Error in processing '" & relative_path & "', aborting...")
 
 # ===========================================
 # this is the entry-point, there is no main()

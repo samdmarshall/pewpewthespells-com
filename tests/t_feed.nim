@@ -7,8 +7,11 @@ let stream = newFileStream("t_feed-junit.xml", fmWrite)
 let junit = newJUnitOutputFormatter(stream)
 addOutputFormatter(junit)
 
-suite "feed tests":
-  test "":
+suite "feed":
+  test "generate feed contents":
+    assert(true)
+
+  test "find items for feed":
     assert(true)
 
 stream.flush()

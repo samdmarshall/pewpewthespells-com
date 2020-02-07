@@ -1,5 +1,5 @@
 import strutils
-import ospaths
+import os
 import distros
 
 packageName = "pewpewthespells"
@@ -19,8 +19,8 @@ skipDirs = @["tests/"]
 #[              Dependencies              ]#
 #[ -------------------------------------- ]#
 
-requires "jester >= 0.2.0"
-requires "parsetoml >= 0.3.2"
+requires "jester >= 0.4.1"
+requires "parsetoml >= 0.5.0"
 requires "uuids >= 0.1.10"
 
 foreignDep "openssl"
