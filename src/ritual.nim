@@ -1,3 +1,4 @@
+
 # =======
 # Imports
 # =======
@@ -72,6 +73,7 @@ router pewpewthespells:
   #[ === Legacy Pages === ]#
   get "/ramble.html": redirect "/blog/"
   get "/confs.html":  redirect "/conf/"
+  get "/re.html":     redirect "/blog/re.html"
 
   #[ === Catch-All === ]#
   get re".*\.html$":

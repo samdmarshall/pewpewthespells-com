@@ -47,6 +47,7 @@ task clean, "clean up from build":
     rmFile "t_incantation"
 
 after install:
+  echoForeignDeps()
   echo "Please run the following commands:"
   echo "  sudo cp " & thisDir() / "/configuration/lib/systemd/service/ritual.service /lib/systemd/system/"
   echo "  sudo cp " & thisDir() / "/configuration/etc/init/ritual.conf /etc/init/"

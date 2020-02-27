@@ -86,8 +86,7 @@ proc processDirectory(sitemap: SiteMap, dir_path: string, disabled_rules: seq[st
 # this is the entry-point, there is no main()
 # ===========================================
 
-when isMainModule:
-
+proc main() =
   let sitemap_file_path = getSitemapFile()
   let sitemap = initSite(sitemap_file_path)
   let website_root = sitemap.exportDir()
@@ -118,7 +117,7 @@ when isMainModule:
         else: discard
       of "disable-rule":
         if value in rule_names:
-          disabled_rules.add value
+          disabled_rules.add(value)
     else: discard
 
   block RssFeed:
@@ -143,3 +142,7 @@ when isMainModule:
     certificate_calendar_path.setFilePermissions(DefaultPermissions)
 
   processDirectory(sitemap, sitemap.getRoot(), disabled_rules)
+
+
+when isMainModule:
+  main()
