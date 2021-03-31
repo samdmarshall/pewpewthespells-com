@@ -63,7 +63,7 @@ router pewpewthespells:
   #[ === Pre-request Hook === ]#
   before:
     if transDayOfVisibility():
-      redirect "https://wewantto.live"
+      sendFile request.settings.staticDir / "tdov.html"
 
   #[ === Provide Directories as pages === ]#
   extend indexPage, ""
